@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gráficos de Datos</title>
+    <!-- Enlaces a Bootstrap y tus estilos CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header class="my-4">
+            <h1>Gráficos de Datos</h1>
+        </header>
+
+        <!-- Selección del tipo de gráfico -->
+        <div class="mb-4">
+            <label for="tipoGraficoSelect" class="form-label">Selecciona el tipo de gráfico:</label>
+            <select id="tipoGraficoSelect" class="form-select">
+                <option value="bar">Barra</option>
+                <option value="pie">Torta (Pie)</option>
+                <option value="line">Línea</option>
+            </select>
+        </div>
+
+        <!-- Selección del tipo de estadística -->
+        <div class="mb-4">
+            <label for="tipoEstadisticaSelect" class="form-label">Selecciona la estadística a visualizar:</label>
+            <select id="tipoEstadisticaSelect" class="form-select">
+                <option value="general">TEA/TEP/TED de toda la escuela</option>
+                <option value="curso">TEA/TEP/TED por curso</option>
+                <option value="materia">Promedio por materia</option>
+            </select>
+        </div>
+
+        <!-- Selección de curso (visible solo si se elige "por curso") -->
+        <div class="mb-4" id="seleccionCursoContainer" style="display: none;">
+            <label for="cursoSelect" class="form-label">Selecciona el curso:</label>
+            <select id="cursoSelect" class="form-select">
+                <!-- Opciones de cursos se llenarán dinámicamente -->
+            </select>
+        </div>
+
+        <!-- Contenedor para el gráfico -->
+        <canvas id="graficoCanvas"></canvas>
+    </div>
+
+    <!-- Scripts -->
+    <!-- Enlaces a las librerías necesarias -->
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Librería Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Tu archivo graphs.js -->
+    <script src="graphs.js"></script>
+</body>
+</html>

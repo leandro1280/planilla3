@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Planilla de Notas</title>
+    <!-- Enlaces a Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Estilos Personalizados -->
+    <link rel="stylesheet" href="styles.css">
+    <!-- Librería Chart.js (por si la usas en esta página) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container mt-4">
+        <!-- Encabezado -->
+        <header class="d-flex justify-content-between align-items-center my-4">
+            <h1>Aplicación de Notas</h1>
+            <!-- Botón "Ver gráficos" -->
+            <button id="verGraficosButton" class="btn btn-primary">Ver gráficos</button>
+        </header>
+
+        <!-- Importar CSV de Alumnos -->
+        <div class="my-4">
+            <label for="inputCSV" class="form-label">Importar CSV de Alumnos:</label>
+            <input type="file" id="inputCSV" accept=".csv" class="form-control">
+        </div>
+
+        <!-- Selección de Curso -->
+        <div id="curso-container" class="my-3"></div>
+
+        <!-- Selección de Alumno -->
+        <div id="alumno-container" class="my-3"></div>
+
+        <!-- Planilla de Notas -->
+        <div id="planilla-container" class="my-4"></div>
+
+        <!-- Botones de Exportación y Guardado -->
+        <div id="botones-exportacion" class="my-4">
+            <button id="exportarCompleta" class="btn btn-success me-2">Exportar Completa a PDF</button>
+            <button id="exportarParcial" class="btn btn-warning me-2">Exportar Parcial a PDF</button>
+            <button id="exportarExcel" class="btn btn-info me-2">Exportar a Excel</button>
+            <!-- Nuevo botón para exportar todo a Excel -->
+            <button id="exportarTodoExcel" class="btn btn-primary me-2">Exportar Todo a Excel</button>
+            <button id="limpiarAvances" class="btn btn-danger me-2">Limpiar Datos</button>
+            <!-- Botón para abrir el modal de agregar alumno -->
+            <button id="FormAgregarAlumno" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#agregarAlumnoModal">Agregar Alumno</button>
+        </div>
+
+        <!-- Contenedores para los porcentajes -->
+        <div id="porcentajes-container" class="my-5">
+            <h3 class="mb-4">Contadores de Porcentajes</h3>
+            <div class="row g-4">
+                <!-- Contador 1: PLG/LIT por Curso -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-primary h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">PLG/LIT por Curso</h5>
+                            <div id="porcentajes-plg-lit-curso">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 2: MTM/MCS por Curso -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-secondary h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">MTM/MCS por Curso</h5>
+                            <div id="porcentajes-mtm-mcs-curso">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 3: MTM de Ciclo Básico -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-success h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">MTM de Ciclo Básico</h5>
+                            <div id="porcentajes-mtm-ciclo-basico">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 4: PLG de Ciclo Básico -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-danger h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">PLG de Ciclo Básico</h5>
+                            <div id="porcentajes-plg-ciclo-basico">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 5: TEA, TEP y TED por Curso -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-warning h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">TEA, TEP y TED por Curso</h5>
+                            <div id="porcentajes-tea-tep-ted-curso">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 6: TEA, TEP y TED de Ciclo Básico -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-info h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">TEA, TEP y TED de Ciclo Básico</h5>
+                            <div id="porcentajes-tea-tep-ted-ciclo-basico">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 7: TEA, TEP y TED de Ciclo Superior -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-dark h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">TEA, TEP y TED de Ciclo Superior</h5>
+                            <div id="porcentajes-tea-tep-ted-ciclo-superior">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 8: TEA, TEP y TED de Toda la Escuela -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-secondary h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">TEA, TEP y TED de Toda la Escuela</h5>
+                            <div id="porcentajes-tea-tep-ted-escuela">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 9: MCS de Ciclo Superior -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-secondary h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">MCS de Ciclo Superior</h5>
+                            <div id="porcentajes-mcs-ciclo-superior">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contador 10: LIT de Ciclo Superior -->
+                <div class="col-md-3">
+                    <div class="card text-white bg-secondary h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">LIT de Ciclo Superior</h5>
+                            <div id="porcentajes-lit-ciclo-superior">
+                                <p class="card-text">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+ <!-- Contenedores de Porcentajes de BLG -->
+ <h3 class="mt-5">BLG (Biología)</h3>
+ <div class="row">
+     <!-- Por Curso -->
+     <div class="col-md-3">
+         <div class="card text-white bg-primary mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">BLG por Curso</h5>
+                 <div id="porcentajes-blg-curso">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Ciclo Básico -->
+     <div class="col-md-3">
+         <div class="card text-white bg-secondary mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">BLG Ciclo Básico</h5>
+                 <div id="porcentajes-blg-ciclo-basico">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Ciclo Superior -->
+     <div class="col-md-3">
+         <div class="card text-white bg-info mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">BLG Ciclo Superior</h5>
+                 <div id="porcentajes-blg-ciclo-superior">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Toda la Escuela -->
+     <div class="col-md-3">
+         <div class="card text-white bg-dark mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">BLG Toda la Escuela</h5>
+                 <div id="porcentajes-blg-escuela">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
+
+ <!-- Contenedores de Porcentajes de HTR -->
+ <h3 class="mt-5">HTR (Historia)</h3>
+ <div class="row">
+     <!-- Por Curso -->
+     <div class="col-md-3">
+         <div class="card text-white bg-primary mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">HTR por Curso</h5>
+                 <div id="porcentajes-htr-curso">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Ciclo Básico -->
+     <div class="col-md-3">
+         <div class="card text-white bg-secondary mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">HTR Ciclo Básico</h5>
+                 <div id="porcentajes-htr-ciclo-basico">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Ciclo Superior -->
+     <div class="col-md-3">
+         <div class="card text-white bg-info mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">HTR Ciclo Superior</h5>
+                 <div id="porcentajes-htr-ciclo-superior">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     <!-- Toda la Escuela -->
+     <div class="col-md-3">
+         <div class="card text-white bg-dark mb-3">
+             <div class="card-body">
+                 <h5 class="card-title">HTR Toda la Escuela</h5>
+                 <div id="porcentajes-htr-escuela">
+                     <p class="card-text">-</p>
+                 </div>
+             </div>
+         </div>
+     </div>
+ </div>
+</div>
+
+<div class="container mt-4">
+    <h1 class="text-center">Planilla de Notas - GGF y CCD</h1>
+    
+    <!-- Contenedores de Porcentajes de GGF (Geografía) -->
+    <h3 class="mt-5">GGF (Geografía)</h3>
+    <div class="row">
+        <!-- Por Curso -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">GGF por Curso</h5>
+                    <div id="porcentajes-ggf-curso">
+                        <p class="card-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ciclo Básico -->
+        <div class="col-md-3">
+            <div class="card text-white bg-secondary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">GGF Ciclo Básico</h5>
+                    <div id="porcentajes-ggf-ciclo-basico">
+                        <p class="card-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ciclo Superior -->
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">GGF Ciclo Superior</h5>
+                    <div id="porcentajes-ggf-ciclo-superior">
+                        <p class="card-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toda la Escuela -->
+        <div class="col-md-3">
+            <div class="card text-white bg-dark mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">GGF Toda la Escuela</h5>
+                    <div id="porcentajes-ggf-escuela">
+                        <p class="card-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenedores de Porcentajes de CCD (Construcción de Ciudadanía) -->
+    <!-- CCD: solo por curso y ciclo superior (NO ciclo básico, NO toda la escuela) -->
+    <h3 class="mt-5">CCD (Construcción de Ciudadanía - Solo Ciclo Superior)</h3>
+    <div class="row">
+        <!-- Por Curso -->
+        <div class="col-md-3">
+            <div class="card text-white bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">CCD por Curso</h5>
+                    <div id="porcentajes-ccd-curso">
+                        <p class="card-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Ciclo Superior -->
+        <div class="col-md-3">
+            <div class="card text-white bg-info mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">CCD Ciclo Superior</h5>
+                    <div id="porcentajes-ccd-ciclo-superior">
+                        <p class="card-text">-</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- No ciclo básico ni toda la escuela para CCD -->
+    </div>
+</div>
+            </div>
+        </div>
+
+        <!-- Contenedores para los gráficos (si los usas) -->
+        <div id="graficos-container" class="my-5">
+            <!-- Contenido de gráficos -->
+        </div>
+
+        <!-- Contenedor de Mensajes -->
+        <div id="mensaje-container"></div>
+    </div>
+
+    <!-- Modal para Agregar Alumno -->
+    <div class="modal fade" id="agregarAlumnoModal" tabindex="-1" aria-labelledby="agregarAlumnoModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="formAgregarAlumno">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="agregarAlumnoModalLabel">Agregar Alumno</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Campo para el Nombre del Alumno -->
+                        <div class="mb-3">
+                            <label for="nombreAlumno" class="form-label">Nombre del Alumno</label>
+                            <input type="text" class="form-control" id="nombreAlumno" required>
+                        </div>
+                        <!-- Selección de Curso -->
+                        <div class="mb-3">
+                            <label for="cursoAlumno" class="form-label">Curso</label>
+                            <select class="form-select" id="cursoAlumno" required>
+                                <!-- Las opciones se llenarán dinámicamente -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Agregar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Librerías Externas -->
+    <!-- Bootstrap JS y dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Librerías para exportar a Excel y PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Archivos JavaScript Personalizados -->
+    <script src="script.js"></script>
+    <script src="addStudent.js"></script>
+    <script src="functions.js"></script>
+</body>
+</html>
