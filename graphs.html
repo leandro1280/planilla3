@@ -2,112 +2,128 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualización de Gráficos</title>
-    <!-- Bootstrap CSS para estilos rápidos y responsivos -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
-    <!-- Chart.js -->
+    <title>Gráficos de Notas</title>
+    <!-- Enlaces a Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <!-- Librería Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- jsPDF -->
+    <!-- Librerías para exportar a PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- html2canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <!-- Archivo graph.js -->
-    <script src="graphs.js" defer></script>
-    <style>
-        body {
-            padding: 20px;
-            background-color: #f8f9fa;
-        }
-        .chart-container {
-            margin-bottom: 50px;
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        #exportarPDFButton {
-            margin-top: 20px;
-        }
-    </style>
+    <!-- Estilos Personalizados (opcional) -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="text-center">Visualización de Gráficos de Notas</h1>
-        
-        <!-- Selectores de Control -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="form-group">
-                    <label for="tipoGraficoSelect">Selecciona el Tipo de Gráfico:</label>
-                    <select id="tipoGraficoSelect" class="form-control">
-                        <option value="general">General (Toda la Escuela)</option>
-                        <option value="ciclo">Por Ciclo</option>
-                        <option value="curso">Por Curso</option>
-                        <option value="alumno">Por Alumno</option>
-                        <option value="materia">Por Materia</option>
-                        <option value="nota-alumno">Notas Numéricas por Alumno</option>
-                        <option value="nota-materia">Notas Numéricas por Materia</option>
-                    </select>
-                </div>
+    <div class="container mt-4">
+        <!-- Encabezado -->
+        <header class="d-flex justify-content-between align-items-center my-4">
+            <h1>Visualización de Datos</h1>
+            <a href="index.html" class="btn btn-secondary">Volver al Inicio</a>
+        </header>
+
+        <!-- Selectores de Gráficos -->
+        <div class="row mb-4">
+            <!-- Selector de Datos -->
+            <div class="col-md-3">
+                <label for="dataSelector" class="form-label">Selecciona los Datos a Graficar:</label>
+                <select id="dataSelector" class="form-select">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="general">Porcentajes Generales (TEA, TEP, TED)</option>
+                    <option value="materia">Porcentajes por Materia</option>
+                    <option value="alumno">Notas por Alumno</option>
+                </select>
             </div>
-            <!-- Se elimina el selector de Contador (TEA/TEP/TED) -->
+
+            <!-- Selector de Tipo de Gráfico -->
+            <div class="col-md-3">
+                <label for="chartTypeSelector" class="form-label">Selecciona el Tipo de Gráfico:</label>
+                <select id="chartTypeSelector" class="form-select">
+                    <option value="bar">Barra</option>
+                    <option value="pie">Torta</option>
+                    <option value="line">Línea</option>
+                    <option value="radar">Radar</option>
+                    <option value="doughnut">Doughnut</option>
+                </select>
+            </div>
+
+            <!-- Botón para Renderizar Gráfico -->
+            <div class="col-md-3 d-flex align-items-end">
+                <button id="renderChartButton" class="btn btn-primary w-100">Generar Gráfico</button>
+            </div>
         </div>
 
-        <!-- Selección de Ciclo -->
-        <div id="seleccionCicloContainer" class="form-group" style="display: none;">
-            <label for="cicloSelect">Selecciona el Ciclo:</label>
-            <select id="cicloSelect" class="form-control">
-                <option value="ciclo-basico">Ciclo Básico</option>
-                <option value="ciclo-superior">Ciclo Superior</option>
-                <option value="escuela">Toda la Escuela</option>
-            </select>
+        <!-- Filtros Adicionales -->
+        <div id="additionalFilters" class="row mb-4" style="display: none;">
+            <!-- Filtro por Tipo de Nota -->
+            <div class="col-md-3">
+                <label for="noteTypeSelector" class="form-label">Tipo de Nota:</label>
+                <select id="noteTypeSelector" class="form-select">
+                    <option value="numerica">Nota Numérica</option>
+                    <option value="tea_tep_ted">TEA/TEP/TED</option>
+                </select>
+            </div>
+
+            <!-- Filtro por Ciclo -->
+            <div class="col-md-3">
+                <label for="cycleSelector" class="form-label">Selecciona el Ciclo:</label>
+                <select id="cycleSelector" class="form-select">
+                    <option value="">-- Seleccionar --</option>
+                    <option value="ciclo-basico">Ciclo Básico</option>
+                    <option value="ciclo-superior">Ciclo Superior</option>
+                </select>
+            </div>
+
+            <!-- Filtro por Curso -->
+            <div class="col-md-3">
+                <label for="courseSelector" class="form-label">Selecciona el Curso:</label>
+                <select id="courseSelector" class="form-select" multiple>
+                    <!-- Opciones se llenarán dinámicamente -->
+                </select>
+                <small class="form-text text-muted">Mantén presionada la tecla Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples cursos.</small>
+            </div>
+
+            <!-- Filtro por Materia -->
+            <div class="col-md-3">
+                <label for="subjectSelector" class="form-label">Selecciona la Materia:</label>
+                <select id="subjectSelector" class="form-select">
+                    <option value="">-- Seleccionar --</option>
+                    <!-- Opciones se llenarán dinámicamente -->
+                </select>
+            </div>
+
+            <!-- Filtro por Alumno Individual (Solo para Notas por Alumno) -->
+            <div class="col-md-3" id="studentFilterContainer" style="display: none;">
+                <label for="studentSelector" class="form-label">Selecciona el Alumno:</label>
+                <select id="studentSelector" class="form-select">
+                    <option value="">-- Seleccionar --</option>
+                    <!-- Opciones se llenarán dinámicamente -->
+                </select>
+            </div>
+
+            <!-- Botón para Aplicar Filtros -->
+            <div class="col-md-3 d-flex align-items-end mt-3">
+                <button id="applyFilterButton" class="btn btn-secondary w-100">Aplicar Filtros</button>
+            </div>
         </div>
 
-        <!-- Selección de Curso -->
-        <div id="seleccionCursoContainer" class="form-group" style="display: none;">
-            <label for="cursoSelect">Selecciona el Curso:</label>
-            <select id="cursoSelect" class="form-control">
-                <!-- Opciones se llenarán dinámicamente -->
-            </select>
+        <!-- Canvas para el Gráfico -->
+        <div class="mb-4">
+            <canvas id="myChart"></canvas>
         </div>
 
-        <!-- Selección de Alumno -->
-        <div id="seleccionAlumnoContainer" class="form-group" style="display: none;">
-            <label for="alumnoSelect">Selecciona el Alumno:</label>
-            <select id="alumnoSelect" class="form-control">
-                <!-- Opciones se llenarán dinámicamente -->
-            </select>
+        <!-- Botón para Exportar Gráfico a PDF -->
+        <div class="mb-4">
+            <button id="exportChartPDFButton" class="btn btn-success">Exportar Gráfico a PDF</button>
         </div>
 
-        <!-- Selección de Materia -->
-        <div id="seleccionMateriaContainer" class="form-group" style="display: none;">
-            <label for="materiaSelect">Selecciona la Materia:</label>
-            <select id="materiaSelect" class="form-control">
-                <!-- Opciones se llenarán dinámicamente -->
-            </select>
-        </div>
-
-        <!-- Botón para Exportar a PDF -->
-        <div class="text-center">
-            <button id="exportarPDFButton" class="btn btn-primary">Exportar Gráficos a PDF</button>
-        </div>
-
-        <!-- Contenedor de Gráficos -->
-        <div id="graficosContainer" class="mt-5">
-            <!-- Los gráficos se agregarán dinámicamente aquí -->
-        </div>
+        <!-- Contenedor para Mensajes -->
+        <div id="messageContainer"></div>
     </div>
 
-    <!-- Bootstrap JS y dependencias (jQuery y Popper.js) -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdFyTTj1O1mrq/mMFboD8EYZ3U/jzvNDrN6VxE72YxN+4PEO2+3Sm6Px3Vq5l" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDuV1JFAOc0q7C3qj8i0BlQYfYpZ5VnZZXpePH0zly4mr/AkL" crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Librerías Externas -->
+    <!-- Bootstrap JS y dependencias -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Archivos JavaScript Personalizados -->
+    <script src="graphs.js"></script>
 </body>
 </html>

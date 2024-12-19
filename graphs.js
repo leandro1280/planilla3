@@ -1,32 +1,29 @@
+// graphs.js
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Obtener referencias a los elementos del DOM
-    const tipoGraficoSelect = document.getElementById('tipoGraficoSelect');
-    const cicloSelect = document.getElementById('cicloSelect');
-    const cursoSelect = document.getElementById('cursoSelect');
-    const alumnoSelect = document.getElementById('alumnoSelect');
-    const materiaSelect = document.getElementById('materiaSelect');
+    // Elementos del DOM
+    const dataSelector = document.getElementById('dataSelector');
+    const chartTypeSelector = document.getElementById('chartTypeSelector');
+    const renderChartButton = document.getElementById('renderChartButton');
+    const additionalFilters = document.getElementById('additionalFilters');
+    const noteTypeSelector = document.getElementById('noteTypeSelector');
+    const cycleSelector = document.getElementById('cycleSelector');
+    const courseSelector = document.getElementById('courseSelector');
+    const subjectSelector = document.getElementById('subjectSelector');
+    const applyFilterButton = document.getElementById('applyFilterButton');
+    const exportChartPDFButton = document.getElementById('exportChartPDFButton');
+    const messageContainer = document.getElementById('messageContainer');
+    const myChartCanvas = document.getElementById('myChart');
+    const studentFilterContainer = document.getElementById('studentFilterContainer');
+    const studentSelector = document.getElementById('studentSelector');
 
-    const seleccionCicloContainer = document.getElementById('seleccionCicloContainer');
-    const seleccionCursoContainer = document.getElementById('seleccionCursoContainer');
-    const seleccionAlumnoContainer = document.getElementById('seleccionAlumnoContainer');
-    const seleccionMateriaContainer = document.getElementById('seleccionMateriaContainer');
+    let currentChart = null;
 
-    const exportarPDFButton = document.getElementById('exportarPDFButton');
-    const graficosContainer = document.getElementById('graficosContainer');
+    // Cargar datos de localStorage
+    let gradesData = JSON.parse(localStorage.getItem('gradesData')) || {};
+    let materiasPorCurso = JSON.parse(localStorage.getItem('materiasPorCurso')) || {};
 
-    // Variable para almacenar los gráficos actuales
-    let charts = [];
-
-    // Cargar gradesData desde localStorage
-    const gradesData = JSON.parse(localStorage.getItem('gradesData')) || {};
-
-    // Verificar si hay datos
-    if (Object.keys(gradesData).length === 0) {
-        alert('No hay datos para mostrar en los gráficos.');
-        return;
-    }
-
-    // Definir los ciclos y cursos por ciclo (debe coincidir con script.js)
+    // Definición de ciclos y cursos por ciclo
     const cursosCicloBasico = [
         '1ro 1ra', '1ro 2da', '1ro 3ra',
         '2do 1ra', '2do 2da', '2do 3ra',
@@ -39,781 +36,349 @@ document.addEventListener('DOMContentLoaded', () => {
         '6to 1ra', '6to 2da'
     ];
 
-    // Definición de materias por curso (debe coincidir con script.js)
-    const materiasPorCurso = {
-        '1ro 1ra': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
-        '1ro 2da': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
-        '1ro 3ra': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
-        '2do 1ra': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
-        '2do 2da': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
-        '2do 3ra': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
-        '3ro 1ra': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
-        '3ro 2da': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
-        '4to 1ra': ['INT FISICA', 'BLG', 'NTICX', 'IGS', 'PSI', 'EFC', 'SYA', 'GGF', 'HTR', 'MCS', 'LIT'],
-        '4to 2da': ['INT FISICA', 'BLG', 'NTICX', 'IGS', 'PSI', 'EFC', 'SYA', 'GGF', 'HTR', 'MCS', 'LIT'],
-        '5to 1ra': ['CCS', 'ECO', 'INT QUI', 'PYC', 'IGS', 'SOC', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
-        '5to 2da': ['CCS', 'ECO', 'INT QUI', 'PYC', 'IGS', 'SOC', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
-        '6to 1ra': ['PIC', 'TYC', 'FILO', 'ARTE', 'IGS', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
-        '6to 2da': ['PIC', 'TYC', 'FILO', 'ARTE', 'IGS', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
-    };
-
-    function getDistinctColor(etiqueta) {
-        const colores = {
-            'TEA': 'rgba(255, 99, 132, 0.6)',      // Rojo
-            'TEP': 'rgba(54, 162, 235, 0.6)',      // Azul
-            'TED': 'rgba(75, 192, 192, 0.6)',      // Verde
-            'Notas': 'rgba(255, 206, 86, 0.6)'     // Amarillo (para gráficos de notas)
+    // Definición de materias por curso (si no están ya definidas en localStorage)
+    if (Object.keys(materiasPorCurso).length === 0) {
+        materiasPorCurso = {
+            '1ro 1ra': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
+            '1ro 2da': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
+            '1ro 3ra': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
+            '2do 1ra': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
+            '2do 2da': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
+            '2do 3ra': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
+            '3ro 1ra': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
+            '3ro 2da': ['BLG', 'ART', 'IGS', 'CCD', 'EFC', 'FQA', 'GGF', 'HTR', 'MTM', 'PLG'],
+            '4to 1ra': ['INT FISICA', 'BLG', 'NTICX', 'IGS', 'PSI', 'EFC', 'SYA', 'GGF', 'HTR', 'MCS', 'LIT'],
+            '4to 2da': ['INT FISICA', 'BLG', 'NTICX', 'IGS', 'PSI', 'EFC', 'SYA', 'GGF', 'HTR', 'MCS', 'LIT'],
+            '5to 1ra': ['CCS', 'ECO', 'INT QUI', 'PYC', 'IGS', 'SOC', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
+            '5to 2da': ['CCS', 'ECO', 'INT QUI', 'PYC', 'IGS', 'SOC', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
+            '6to 1ra': ['PIC', 'TYC', 'FILO', 'ARTE', 'IGS', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
+            '6to 2da': ['PIC', 'TYC', 'FILO', 'ARTE', 'IGS', 'EFC', 'GGF', 'HTR', 'MCS', 'LIT'],
         };
-        return colores[etiqueta] || 'rgba(153, 102, 255, 0.6)'; // Morado por defecto
+        localStorage.setItem('materiasPorCurso', JSON.stringify(materiasPorCurso));
     }
 
-    // Inicializar los selectores
-    inicializarSelectores();
-
-    // Event Listeners
-    tipoGraficoSelect.addEventListener('change', actualizarInterfaz);
-    cicloSelect.addEventListener('change', actualizarSelectCursos);
-    cursoSelect.addEventListener('change', actualizarSelectAlumnosYMaterias);
-    alumnoSelect.addEventListener('change', actualizarGrafico);
-    materiaSelect.addEventListener('change', actualizarGrafico);
-    exportarPDFButton.addEventListener('click', exportarGraficoPDF);
-
-    // Función para inicializar los selectores de tipo de gráfico
-    function inicializarSelectores() {
-        actualizarInterfaz();
+    // Función para mostrar mensajes
+    function showMessage(message, type = 'info') {
+        messageContainer.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        `;
     }
 
-    // Función para actualizar la interfaz según el tipo de gráfico seleccionado
-    function actualizarInterfaz() {
-        const tipoGrafico = tipoGraficoSelect.value;
+    // Función para limpiar mensajes
+    function clearMessage() {
+        messageContainer.innerHTML = '';
+    }
 
-        // Resetear todos los contenedores
-        seleccionCicloContainer.style.display = 'none';
-        seleccionCursoContainer.style.display = 'none';
-        seleccionAlumnoContainer.style.display = 'none';
-        seleccionMateriaContainer.style.display = 'none';
-
-        // Mostrar u ocultar selectores según el tipo de gráfico
-        if (tipoGrafico === 'ciclo') {
-            seleccionCicloContainer.style.display = 'block';
-            cicloSelect.dispatchEvent(new Event('change')); // Trigger para mostrar cursos
-        } else if (tipoGrafico === 'curso') {
-            seleccionCicloContainer.style.display = 'block';
-            seleccionCursoContainer.style.display = 'block';
-            cicloSelect.dispatchEvent(new Event('change')); // Trigger para actualizar cursos
-        } else if (tipoGrafico === 'alumno') {
-            seleccionCicloContainer.style.display = 'block';
-            seleccionCursoContainer.style.display = 'block';
-            seleccionAlumnoContainer.style.display = 'block';
-            cicloSelect.dispatchEvent(new Event('change')); // Trigger para actualizar cursos
-        } else if (tipoGrafico === 'materia') {
-            seleccionCicloContainer.style.display = 'block';
-            seleccionCursoContainer.style.display = 'block';
-            seleccionMateriaContainer.style.display = 'block';
-            cicloSelect.dispatchEvent(new Event('change')); // Trigger para actualizar cursos
-        } else if (tipoGrafico === 'general' || tipoGrafico === 'nota-alumno' || tipoGrafico === 'nota-materia') {
-            // Para gráficos generales o de notas, mostrar selectores según necesidad
-            if (tipoGrafico === 'nota-alumno') {
-                seleccionCicloContainer.style.display = 'block';
-                seleccionCursoContainer.style.display = 'block';
-                seleccionAlumnoContainer.style.display = 'block';
-            } else if (tipoGrafico === 'nota-materia') {
-                seleccionCicloContainer.style.display = 'block';
-                seleccionCursoContainer.style.display = 'block';
-                seleccionMateriaContainer.style.display = 'block';
+    // Inicializar Selectores Dinámicos
+    function initializeDynamicSelectors() {
+        // Mostrar u ocultar el contenedor de filtro de alumno según la selección de datos
+        dataSelector.addEventListener('change', () => {
+            const selectedData = dataSelector.value;
+            if (selectedData === 'alumno') {
+                studentFilterContainer.style.display = 'block';
+                populateStudentSelector();
+            } else {
+                studentFilterContainer.style.display = 'none';
+                studentSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
             }
-            cicloSelect.dispatchEvent(new Event('change')); // Trigger para actualizar cursos
-        }
 
-        actualizarGrafico();
+            if (selectedData) {
+                additionalFilters.style.display = 'block';
+                populateCourseSelector(); // Actualizar cursos según ciclo seleccionado
+            } else {
+                additionalFilters.style.display = 'none';
+                resetAdditionalFilters();
+            }
+        });
+
+        // Manejar la selección del ciclo para actualizar los cursos disponibles
+        cycleSelector.addEventListener('change', () => {
+            populateCourseSelector();
+            populateSubjectSelector();
+        });
+
+        // Manejar la selección de tipo de nota para ajustar el selector de materias
+        noteTypeSelector.addEventListener('change', () => {
+            populateSubjectSelector();
+        });
+
+        // Manejar la selección de cursos para actualizar las materias disponibles
+        courseSelector.addEventListener('change', () => {
+            populateSubjectSelector();
+        });
+
+        // Manejar la selección de datos a graficar para ajustar los filtros
+        dataSelector.addEventListener('change', () => {
+            const selectedData = dataSelector.value;
+            if (selectedData === 'alumno') {
+                studentFilterContainer.style.display = 'block';
+                populateStudentSelector();
+            } else {
+                studentFilterContainer.style.display = 'none';
+                studentSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
+            }
+        });
     }
 
-    // Función para actualizar el selector de cursos según el ciclo seleccionado
-    function actualizarSelectCursos() {
-        const cicloSeleccionado = cicloSelect.value;
-        let cursosFiltrados = [];
+    // Función para llenar el selector de cursos
+    function populateCourseSelector() {
+        courseSelector.innerHTML = '';
+        const selectedCycle = cycleSelector.value;
 
-        if (cicloSeleccionado === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (cicloSeleccionado === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
-        } else if (cicloSeleccionado === 'escuela') {
-            cursosFiltrados = Object.keys(gradesData).map(curso => formatearCurso(curso));
+        if (!selectedCycle) {
+            courseSelector.innerHTML = '<option value="">-- Seleccionar Ciclo Primero --</option>';
+            courseSelector.disabled = true;
+            return;
         }
 
-        // Limpiar y llenar el selector de cursos
-        cursoSelect.innerHTML = '';
-        if (cursosFiltrados.length === 0) {
-            cursoSelect.innerHTML = '<option value="">No hay cursos disponibles</option>';
-            cursoSelect.disabled = true;
-        } else {
-            cursoSelect.disabled = false;
-            cursosFiltrados.forEach(curso => {
-                cursoSelect.innerHTML += `<option value="${curso}">${curso.toUpperCase()}</option>`;
+        const cursos = selectedCycle === 'ciclo-basico' ? cursosCicloBasico : cursosCicloSuperior;
+        const cursosDisponibles = cursos.filter(curso => materiasPorCurso[curso]);
+
+        if (cursosDisponibles.length === 0) {
+            courseSelector.innerHTML = '<option value="">No hay cursos disponibles para el ciclo seleccionado</option>';
+            courseSelector.disabled = true;
+            return;
+        }
+
+        courseSelector.disabled = false;
+
+        cursosDisponibles.forEach(curso => {
+            const cursoKey = curso.toLowerCase();
+            courseSelector.innerHTML += `<option value="${curso}">${curso.toUpperCase()}</option>`;
+        });
+    }
+
+    // Función para llenar el selector de materias
+    function populateSubjectSelector() {
+        subjectSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
+        const selectedCycle = cycleSelector.value;
+        const selectedCourses = Array.from(courseSelector.selectedOptions).map(option => option.value);
+
+        if (!selectedCycle || selectedCourses.length === 0) {
+            return;
+        }
+
+        let materiasSet = new Set();
+
+        selectedCourses.forEach(curso => {
+            const materias = materiasPorCurso[curso] || [];
+            materias.forEach(materia => {
+                materiasSet.add(materia.toUpperCase());
             });
-            cursoSelect.value = cursosFiltrados[0];
-            cursoSelect.dispatchEvent(new Event('change'));
-        }
-    }
-
-    // Función para actualizar los selectores de alumnos y materias según el curso seleccionado
-    function actualizarSelectAlumnosYMaterias() {
-        const cicloSeleccionado = cicloSelect.value;
-        const cursoSeleccionado = cursoSelect.value;
-
-        if (!cursoSeleccionado) {
-            alumnoSelect.innerHTML = '<option value="">No hay curso seleccionado</option>';
-            materiaSelect.innerHTML = '<option value="">No hay curso seleccionado</option>';
-            return;
-        }
-
-        const datosCurso = gradesData[cursoSeleccionado.toLowerCase()] || {};
-
-        // Actualizar selector de alumnos
-        const alumnos = Object.keys(datosCurso).sort();
-        alumnoSelect.innerHTML = '<option value="">Todos los alumnos</option>';
-        alumnos.forEach(alumno => {
-            alumnoSelect.innerHTML += `<option value="${alumno}">${alumno}</option>`;
         });
 
-        // Actualizar selector de materias
-        const materias = materiasPorCurso[cursoSeleccionado] || [];
-        materiaSelect.innerHTML = '<option value="">Selecciona una materia</option>';
-        materias.forEach(materia => {
-            materiaSelect.innerHTML += `<option value="${materia}">${materia.toUpperCase()}</option>`;
+        // Convertir a array y ordenar
+        const materiasArray = Array.from(materiasSet).sort();
+
+        materiasArray.forEach(materia => {
+            subjectSelector.innerHTML += `<option value="${materia}">${materia}</option>`;
         });
-
-        actualizarGrafico();
     }
 
-    // Función para actualizar el gráfico basado en las selecciones actuales
-    function actualizarGrafico() {
-        const tipoGrafico = tipoGraficoSelect.value;
-        const cicloSeleccionado = cicloSelect.value;
-        const cursoSeleccionado = cursoSelect.value;
-        const alumnoSeleccionado = alumnoSelect.value;
-        const materiaSeleccionada = materiaSelect.value;
+    // Función para llenar el selector de alumnos
+    function populateStudentSelector() {
+        studentSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
+        let todosAlumnos = new Set();
 
-        // Limpiar los gráficos anteriores
-        limpiarGraficos();
-
-        // Calcular y crear gráficos según el tipo seleccionado
-        if (tipoGrafico === 'general') {
-            crearGraficoGeneral();
-        } else if (tipoGrafico === 'ciclo') {
-            crearGraficoPorCiclo(cicloSeleccionado);
-        } else if (tipoGrafico === 'curso') {
-            crearGraficoPorCurso(cursoSeleccionado);
-        } else if (tipoGrafico === 'alumno') {
-            crearGraficoPorAlumno(cicloSeleccionado, cursoSeleccionado, alumnoSeleccionado);
-        } else if (tipoGrafico === 'materia') {
-            crearGraficoPorMateria(cicloSeleccionado, cursoSeleccionado, materiaSeleccionada);
-        } else if (tipoGrafico === 'nota-alumno') {
-            crearGraficoNotasAlumno(cicloSeleccionado, cursoSeleccionado, alumnoSeleccionado);
-        } else if (tipoGrafico === 'nota-materia') {
-            crearGraficoNotasMateria(cicloSeleccionado, cursoSeleccionado, materiaSeleccionada);
-        }
-    }
-
-    // Función para limpiar todos los gráficos anteriores
-    function limpiarGraficos() {
-        charts.forEach(chartInstance => {
-            chartInstance.destroy();
-        });
-        charts = [];
-        graficosContainer.innerHTML = '';
-    }
-
-    // Función para crear gráfico general (Toda la Escuela)
-    function crearGraficoGeneral() {
-        const datos = calcularPorcentajesTedTeaTepTodaEscuela();
-        const titulo = 'TEA/TEP/TED - Toda la Escuela';
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['TEA', 'TEP', 'TED'], 'bar');
-        
-    }
-
-    // Función para crear gráfico por ciclo
-    function crearGraficoPorCiclo(ciclo) {
-        const datos = calcularPorcentajesTedTeaTepCiclo(ciclo);
-        const titulo = `TEA/TEP/TED - ${formatearCicloTitulo(ciclo)}`;
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['TEA', 'TEP', 'TED'], 'bar');
-    }
-
-    // Función para crear gráfico por curso
-    function crearGraficoPorCurso(curso) {
-        const datos = calcularPorcentajesTedTeaTepPorCurso(curso);
-        const titulo = `TEA/TEP/TED - Curso ${curso.toUpperCase()}`;
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['TEA', 'TEP', 'TED'], 'bar');
-    }
-
-    // Función para crear gráfico por alumno
-    function crearGraficoPorAlumno(ciclo, curso, alumno) {
-        const datos = calcularPorcentajesTedTeaTepPorAlumno(ciclo, curso, alumno);
-        const titulo = alumno ? `TEA/TEP/TED - Alumno ${alumno} - Curso ${curso.toUpperCase()}` : 'TEA/TEP/TED - Todos los Alumnos';
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['TEA', 'TEP', 'TED'], 'bar');
-    }
-
-    // Función para crear gráfico por materia
-    function crearGraficoPorMateria(ciclo, curso, materia) {
-        if (!materia) {
-            alert('Por favor, selecciona una materia.');
-            return;
-        }
-        const datos = calcularPorcentajesMateria(ciclo, curso, materia);
-        const titulo = `TEA/TEP/TED - Materia ${materia.toUpperCase()} - Curso ${curso.toUpperCase()}`;
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['TEA', 'TEP', 'TED'], 'bar');
-    }
-
-    // Función para crear gráfico de Notas Numéricas por Alumno
-    function crearGraficoNotasAlumno(ciclo, curso, alumno) {
-        const datos = calcularNotasNumericasAlumno(ciclo, curso, alumno);
-        if (datos.labels.length === 0) {
-            alert('No hay notas disponibles para el alumno seleccionado.');
-            return;
-        }
-        const titulo = alumno ? `Notas Numéricas - Alumno ${alumno}` : 'Notas Numéricas - Todos los Alumnos';
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['Notas'], 'line');
-    }
-
-    // Función para crear gráfico de Notas Numéricas por Materia
-    function crearGraficoNotasMateria(ciclo, curso, materia) {
-        if (!materia) {
-            alert('Por favor, selecciona una materia.');
-            return;
-        }
-        const datos = calcularNotasNumericasMateria(ciclo, curso, materia);
-        if (datos.labels.length === 0) {
-            alert('No hay notas disponibles para la materia seleccionada.');
-            return;
-        }
-        const titulo = `Notas Numéricas - Materia ${materia.toUpperCase()}`;
-        const labels = datos.labels;
-        const data = datos.data;
-
-        crearChartCanvas(titulo, labels, data, ['Notas'], 'line');
-    }
-
-   function crearChartCanvas(titulo, labels, data, etiquetas, tipo = 'bar') {
-    // Crear un contenedor para el gráfico
-    const contenedor = document.createElement('div');
-    contenedor.classList.add('chart-container');
-
-    // Crear un título para el gráfico
-    const tituloGrafico = document.createElement('h3');
-    tituloGrafico.textContent = titulo;
-    contenedor.appendChild(tituloGrafico);
-
-    // Crear el canvas
-    const canvas = document.createElement('canvas');
-    contenedor.appendChild(canvas);
-    graficosContainer.appendChild(contenedor);
-
-    // Determinar si es un gráfico de notas numéricas para ajustar la escala
-    const esGraficoNota = tipo === 'line' && etiquetas.includes('Notas');
-
-    // Crear el gráfico utilizando Chart.js
-    const chart = new Chart(canvas.getContext('2d'), {
-        type: tipo,
-        data: {
-            labels: labels,
-            datasets: etiquetas.map((etiqueta) => ({
-                label: etiqueta,
-                data: data[0], // Ajusta según la estructura de tus datos
-                backgroundColor: getDistinctColor(etiqueta),
-                borderColor: getDistinctColor(etiqueta),
-                borderWidth: 1,
-                fill: tipo === 'line' ? false : true
-            }))
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                },
-                title: {
-                    display: true,
-                    text: titulo
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: esGraficoNota ? 10 : 100 // Escala de 1-10 para notas, 0-100 para porcentajes
-                }
+        for (const curso in gradesData) {
+            for (const alumno in gradesData[curso]) {
+                todosAlumnos.add(alumno);
             }
         }
+
+        const alumnosArray = Array.from(todosAlumnos).sort();
+
+        alumnosArray.forEach(alumno => {
+            studentSelector.innerHTML += `<option value="${alumno}">${alumno}</option>`;
+        });
+    }
+
+    // Función para resetear los filtros adicionales
+    function resetAdditionalFilters() {
+        noteTypeSelector.value = 'numerica';
+        cycleSelector.value = '';
+        courseSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
+        courseSelector.disabled = true;
+        subjectSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
+    }
+
+    // Manejar el botón para aplicar los filtros y generar el gráfico
+    applyFilterButton.addEventListener('click', () => {
+        const selectedData = dataSelector.value;
+        const noteType = noteTypeSelector.value;
+        const cycle = cycleSelector.value;
+        const selectedCourses = Array.from(courseSelector.selectedOptions).map(option => option.value);
+        const subject = subjectSelector.value;
+        const selectedStudent = studentSelector.value;
+
+        // Validaciones
+        if (!selectedData) {
+            showMessage('Por favor, selecciona los datos a graficar.', 'warning');
+            return;
+        }
+
+        if ((selectedData !== 'alumno') && !cycle) {
+            showMessage('Por favor, selecciona un ciclo.', 'warning');
+            return;
+        }
+
+        if ((selectedData !== 'alumno') && selectedCourses.length === 0) {
+            showMessage('Por favor, selecciona al menos un curso.', 'warning');
+            return;
+        }
+
+        if ((selectedData !== 'alumno') && !subject) {
+            showMessage('Por favor, selecciona una materia.', 'warning');
+            return;
+        }
+
+        if (selectedData === 'alumno' && !selectedStudent) {
+            showMessage('Por favor, selecciona un alumno.', 'warning');
+            return;
+        }
+
+        // Procesar y obtener los datos para el gráfico
+        let chartLabels = [];
+        let chartDatasets = [];
+        let chartTitle = '';
+
+        if (selectedData === 'general') {
+            // Porcentajes Generales
+            if (noteType === 'numerica') {
+                showMessage('Las notas numéricas no están disponibles para porcentajes generales. Selecciona TEA/TEP/TED.', 'warning');
+                return;
+            }
+
+            if (cycle === 'ciclo-basico' || cycle === 'ciclo-superior') {
+                selectedCourses.forEach(curso => {
+                    const porcentaje = calculateGeneralPercentages(curso, subject);
+                    chartDatasets.push({
+                        label: curso.toUpperCase(),
+                        data: [porcentaje.TEA, porcentaje.TEP, porcentaje.TED],
+                        backgroundColor: generateColors(3)
+                    });
+                });
+
+                chartLabels = ['TEA', 'TEP', 'TED'];
+                chartTitle = `Porcentajes Generales en ${subject} por Curso (${cycle.replace('-', ' ').toUpperCase()})`;
+            }
+        } else if (selectedData === 'materia') {
+            // Porcentajes por Materia
+            if (noteType === 'numerica') {
+                showMessage('Las notas numéricas no están disponibles para porcentajes por materia. Selecciona TEA/TEP/TED.', 'warning');
+                return;
+            }
+
+            selectedCourses.forEach(curso => {
+                const porcentaje = calculateGeneralPercentages(curso, subject);
+                chartDatasets.push({
+                    label: curso.toUpperCase(),
+                    data: [porcentaje.TEA, porcentaje.TEP, porcentaje.TED],
+                    backgroundColor: generateColors(3)
+                });
+            });
+
+            chartLabels = ['TEA', 'TEP', 'TED'];
+            chartTitle = `Porcentajes en ${subject} por Curso (${cycle.replace('-', ' ').toUpperCase()})`;
+        } else if (selectedData === 'alumno') {
+            // Notas por Alumno
+            if (noteType === 'tea_tep_ted') {
+                showMessage('Las notas TEA/TEP/TED no son numéricas. Selecciona "Nota Numérica" para este tipo de datos.', 'warning');
+                return;
+            }
+
+            const alumnoNotas = getAlumnoNotas(selectedStudent);
+            chartLabels = Object.keys(alumnoNotas);
+            chartDatasets.push({
+                label: 'Nota',
+                data: Object.values(alumnoNotas),
+                backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                fill: true
+            });
+
+            chartTitle = `Notas de ${selectedStudent} en sus Materias`;
+        }
+
+        // Verificar si hay datos para graficar
+        if ((selectedData !== 'alumno') && chartDatasets.length === 0) {
+            showMessage('No hay datos para mostrar en el gráfico seleccionado.', 'info');
+            return;
+        }
+
+        // Renderizar el gráfico
+        renderChart(chartLabels, chartDatasets, chartTypeSelector.value, chartTitle);
     });
 
-    // Almacenar el gráfico para posible destrucción futura
-    charts.push(chart);
-}
+    // Función para calcular porcentajes generales
+    function calculateGeneralPercentages(curso, materia) {
+        let totalTEA = 0, totalTEP = 0, totalTED = 0, totalNotas = 0;
+        const cursoKey = curso.toLowerCase();
 
+        if (!gradesData[cursoKey]) return { TEA: 0, TEP: 0, TED: 0 };
 
-    // Función para generar colores
-    function generarColor(index) {
-        const colores = [
-            'rgba(255, 99, 132, 0.6)',   // Rojo
-            'rgba(54, 162, 235, 0.6)',   // Azul
-            'rgba(255, 206, 86, 0.6)',   // Amarillo
-            'rgba(75, 192, 192, 0.6)',   // Verde
-            'rgba(153, 102, 255, 0.6)',  // Morado
-            'rgba(255, 159, 64, 0.6)',   // Naranja
-            'rgba(199, 199, 199, 0.6)',  // Gris
-            'rgba(83, 102, 255, 0.6)',   // Azul Claro
-            'rgba(255, 99, 71, 0.6)',    // Tomate
-            'rgba(60, 179, 113, 0.6)'    // Verde Medio
-        ];
-        return colores[index % colores.length];
-    }
-
-    // Función para exportar todos los gráficos a un solo PDF
-    async function exportarGraficoPDF() {
-        if (charts.length === 0) {
-            alert('No hay gráficos para exportar.');
-            return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'pt',
-            format: 'a4'
-        });
-
-        for (let i = 0; i < graficosContainer.children.length; i++) {
-            const contenedor = graficosContainer.children[i];
-            const canvas = contenedor.querySelector('canvas');
-            const titulo = contenedor.querySelector('h3').textContent;
-
-            await html2canvas(contenedor).then(canvasImg => {
-                const imgData = canvasImg.toDataURL('image/png');
-                const imgWidth = pdf.internal.pageSize.getWidth() - 40;
-                const imgHeight = (canvasImg.height * imgWidth) / canvasImg.width;
-
-                if (i > 0) {
-                    pdf.addPage();
-                }
-
-                pdf.setFontSize(16);
-                pdf.text(titulo, 20, 30);
-                pdf.addImage(imgData, 'PNG', 20, 40, imgWidth, imgHeight);
-            }).catch(error => {
-                console.error('Error al capturar el gráfico:', error);
-                alert('Hubo un error al exportar a PDF. Por favor, intenta nuevamente.');
-            });
-        }
-
-        pdf.save('graficos.pdf');
-    }
-
-    // Funciones para calcular porcentajes (copiando lógica de script.js)
-
-    // 1. Porcentajes TEA, TEP y TED de Toda la Escuela
-    function calcularPorcentajesTedTeaTepTodaEscuela() {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        for (const curso in gradesData) {
-            const datosCurso = gradesData[curso];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                for (const materia in materias) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 2. Porcentajes TEA, TEP y TED por Ciclo
-    function calcularPorcentajesTedTeaTepCiclo(ciclo) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        let cursosFiltrados = [];
-        if (ciclo === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (ciclo === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
-        }
-
-        cursosFiltrados.forEach(curso => {
-            const datosCurso = gradesData[curso.toLowerCase()];
-            if (!datosCurso) return;
-
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                for (const materia in materias) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        });
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 3. Porcentajes TEA, TEP y TED por Curso
-    function calcularPorcentajesTedTeaTepPorCurso(curso) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        const datosCurso = gradesData[curso.toLowerCase()];
-        if (!datosCurso) {
-            return { labels: ['TEA', 'TEP', 'TED'], data: [['0', '0', '0']] };
-        }
-
+        const datosCurso = gradesData[cursoKey];
         for (const alumno in datosCurso) {
             const materias = datosCurso[alumno];
-            for (const materia in materias) {
-                const notasMateria = materias[materia];
-                if (notasMateria['Nota 1']) {
-                    totalNotas++;
-                    if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                    if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                    if (notasMateria['TED 1'] === 'X') totalTED++;
-                }
-                if (notasMateria['Nota 2']) {
-                    totalNotas++;
-                    if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                    if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                    if (notasMateria['TED 2'] === 'X') totalTED++;
-                }
-            }
-        }
+            if (!materias[materia]) continue;
 
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 4. Porcentajes TEA, TEP y TED por Alumno
-    function calcularPorcentajesTedTeaTepPorAlumno(ciclo, curso, alumno) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        const datosCurso = gradesData[curso.toLowerCase()];
-        if (!datosCurso || !datosCurso[alumno]) {
-            return { labels: ['TEA', 'TEP', 'TED'], data: [['0', '0', '0']] };
-        }
-
-        const materias = datosCurso[alumno];
-        for (const materia in materias) {
             const notasMateria = materias[materia];
-            if (notasMateria['Nota 1']) {
-                totalNotas++;
-                if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                if (notasMateria['TED 1'] === 'X') totalTED++;
-            }
-            if (notasMateria['Nota 2']) {
-                totalNotas++;
-                if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                if (notasMateria['TED 2'] === 'X') totalTED++;
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 5. Porcentajes TEA, TEP y TED por Materia
-    function calcularPorcentajesMateria(ciclo, curso, materia) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        let cursosFiltrados = [];
-        if (ciclo === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (ciclo === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
-        } else if (ciclo === 'escuela') {
-            cursosFiltrados = Object.keys(gradesData).map(cursoItem => formatearCurso(cursoItem));
-        }
-
-        cursosFiltrados.forEach(cursoItem => {
-            const datosCurso = gradesData[cursoItem.toLowerCase()];
-            if (!datosCurso) return;
-
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
+            ['Nota 1', 'Nota 2'].forEach(notaKey => {
+                if (notasMateria[notaKey]) {
+                    totalNotas++;
+                    if (notasMateria[`TEA ${notaKey.slice(-1)}`] === 'X') totalTEA++;
+                    if (notasMateria[`TEP ${notaKey.slice(-1)}`] === 'X') totalTEP++;
+                    if (notasMateria[`TED ${notaKey.slice(-1)}`] === 'X') totalTED++;
                 }
-            }
-        });
+            });
+        }
 
         const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
         const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
         const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
 
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
+        return { TEA: porcentajeTEA, TEP: porcentajeTEP, TED: porcentajeTED };
     }
 
-    // 6. Porcentajes TEA, TEP y TED para Toda la Escuela en Materia específica
-    function calcularPorcentajesMateriaTodaEscuela(materia) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
+    // Función para obtener las notas de un alumno individual
+    function getAlumnoNotas(alumno) {
+        let notas = {};
 
         for (const curso in gradesData) {
             const datosCurso = gradesData[curso];
-            for (const alumno in datosCurso) {
+            if (datosCurso[alumno]) {
                 const materias = datosCurso[alumno];
-                if (materias[materia]) {
+                for (const materia in materias) {
                     const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
+                    ['Nota 1', 'Nota 2'].forEach(notaKey => {
+                        if (notasMateria[notaKey]) {
+                            const clave = materia + (notaKey === 'Nota 1' ? ' 1' : ' 2');
+                            notas[clave] = parseFloat(notasMateria[notaKey]) || 0;
+                        }
+                    });
                 }
             }
         }
 
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
+        return notas;
     }
 
-    // Función para formatear el nombre del curso (mantener mayúsculas y minúsculas correctas)
-    function formatearCurso(curso) {
-        // Asumiendo que los cursos en gradesData están en minúsculas, convertirlos a como están en materiasPorCurso
-        for (const key in materiasPorCurso) {
-            if (key.toLowerCase() === curso.toLowerCase()) {
-                return key;
-            }
-        }
-        return curso;
-    }
-
-    // Función para formatear el título del ciclo
-    function formatearCicloTitulo(ciclo) {
-        if (ciclo === 'ciclo-basico') return 'Básico';
-        if (ciclo === 'ciclo-superior') return 'Superior';
-        if (ciclo === 'escuela') return 'Toda la Escuela';
-        return '';
-    }
-
-    // Funciones para calcular Notas Numéricas por Alumno
-    function calcularNotasNumericasAlumno(ciclo, curso, alumno) {
-        let notas = [];
-        let labels = [];
-
-        let datosFiltrados = {};
-
-        if (ciclo === 'escuela') {
-            datosFiltrados = gradesData;
-        } else {
-            const cursosFiltrados = ciclo === 'ciclo-basico' ? cursosCicloBasico : cursosCicloSuperior;
-            cursosFiltrados.forEach(cursoItem => {
-                const datosCurso = gradesData[cursoItem.toLowerCase()];
-                if (datosCurso) {
-                    datosFiltrados[cursoItem.toLowerCase()] = datosCurso;
-                }
-            });
+    // Función para renderizar el gráfico
+    function renderChart(labels, datasets, type, title) {
+        // Limpiar el gráfico existente si hay uno
+        if (currentChart) {
+            currentChart.destroy();
         }
 
-        if (curso && datosFiltrados[curso.toLowerCase()]) {
-            const datosCurso = datosFiltrados[curso.toLowerCase()];
-            if (alumno) {
-                if (datosCurso[alumno]) {
-                    const materias = datosCurso[alumno];
-                    for (const materiaKey in materias) {
-                        const notasMateria = materias[materiaKey];
-                        if (notasMateria['Nota 1']) {
-                            notas.push(parseFloat(notasMateria['Nota 1']));
-                            labels.push(`Nota 1 - ${materiaKey.toUpperCase()}`);
-                        }
-                        if (notasMateria['Nota 2']) {
-                            notas.push(parseFloat(notasMateria['Nota 2']));
-                            labels.push(`Nota 2 - ${materiaKey.toUpperCase()}`);
-                        }
-                    }
-                }
-            } else {
-                // Todos los alumnos
-                for (const alumnoKey in datosCurso) {
-                    const materias = datosCurso[alumnoKey];
-                    for (const materiaKey in materias) {
-                        const notasMateria = materias[materiaKey];
-                        if (notasMateria['Nota 1']) {
-                            notas.push(parseFloat(notasMateria['Nota 1']));
-                            labels.push(`Nota 1 - ${materiaKey.toUpperCase()}`);
-                        }
-                        if (notasMateria['Nota 2']) {
-                            notas.push(parseFloat(notasMateria['Nota 2']));
-                            labels.push(`Nota 2 - ${materiaKey.toUpperCase()}`);
-                        }
-                    }
-                }
-            }
-        }
-
-        return { labels: labels, data: [notas] };
-    }
-
-    // Funciones para calcular Notas Numéricas por Materia
-    function calcularNotasNumericasMateria(ciclo, curso, materia) {
-        let notas = [];
-        let labels = [];
-
-        let datosFiltrados = {};
-
-        if (ciclo === 'escuela') {
-            datosFiltrados = gradesData;
-        } else {
-            const cursosFiltrados = ciclo === 'ciclo-basico' ? cursosCicloBasico : cursosCicloSuperior;
-            cursosFiltrados.forEach(cursoItem => {
-                const datosCurso = gradesData[cursoItem.toLowerCase()];
-                if (datosCurso) {
-                    datosFiltrados[cursoItem.toLowerCase()] = datosCurso;
-                }
-            });
-        }
-
-        if (curso && datosFiltrados[curso.toLowerCase()]) {
-            const datosCurso = datosFiltrados[curso.toLowerCase()];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        notas.push(parseFloat(notasMateria['Nota 1']));
-                        labels.push(`Nota 1 - ${alumno}`);
-                    }
-                    if (notasMateria['Nota 2']) {
-                        notas.push(parseFloat(notasMateria['Nota 2']));
-                        labels.push(`Nota 2 - ${alumno}`);
-                    }
-                }
-            }
-        }
-
-        return { labels: labels, data: [notas] };
-    }
-
-    // Función para crear y agregar un gráfico de Chart.js al contenedor
-    function crearChartCanvas(titulo, labels, data, etiquetas, tipo = 'bar') {
-        // Crear un contenedor para el gráfico
-        const contenedor = document.createElement('div');
-        contenedor.classList.add('chart-container');
-
-        // Crear un título para el gráfico
-        const tituloGrafico = document.createElement('h3');
-        tituloGrafico.textContent = titulo;
-        contenedor.appendChild(tituloGrafico);
-
-        // Crear el canvas
-        const canvas = document.createElement('canvas');
-        contenedor.appendChild(canvas);
-        graficosContainer.appendChild(contenedor);
-
-        // Determinar si es un gráfico de notas numéricas para ajustar la escala
-        const esGraficoNota = tipo === 'line' && etiquetas.includes('Notas');
-
-        // Crear el gráfico utilizando Chart.js
-        const chart = new Chart(canvas.getContext('2d'), {
-            type: tipo,
+        // Configuración del gráfico
+        const config = {
+            type: type,
             data: {
                 labels: labels,
-                datasets: etiquetas.map((etiqueta, index) => ({
-                    label: etiqueta,
-                    data: data[index],
-                    backgroundColor: generarColor(index),
-                    borderColor: generarColor(index),
-                    borderWidth: 1,
-                    fill: tipo === 'line' ? false : true
-                }))
+                datasets: datasets
             },
             options: {
                 responsive: true,
@@ -823,769 +388,71 @@ document.addEventListener('DOMContentLoaded', () => {
                     },
                     title: {
                         display: true,
-                        text: titulo
+                        text: title
                     }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: esGraficoNota ? 10 : 100 // Escala de 1-10 para notas, 0-100 para porcentajes
+                        // Ajustar el rango de acuerdo al tipo de dato
+                        suggestedMax: type === 'radar' || type === 'line' ? 10 : 100
                     }
                 }
-            }
-        });
-
-        // Almacenar el gráfico para posible destrucción futura
-        charts.push(chart);
-    }
-
-    // Función para generar colores
-    function generarColor(index) {
-        const colores = [
-            'rgba(255, 99, 132, 0.6)',   // Rojo
-            'rgba(54, 162, 235, 0.6)',   // Azul
-            'rgba(255, 206, 86, 0.6)',   // Amarillo
-            'rgba(75, 192, 192, 0.6)',   // Verde
-            'rgba(153, 102, 255, 0.6)',  // Morado
-            'rgba(255, 159, 64, 0.6)',   // Naranja
-            'rgba(199, 199, 199, 0.6)',  // Gris
-            'rgba(83, 102, 255, 0.6)',   // Azul Claro
-            'rgba(255, 99, 71, 0.6)',    // Tomate
-            'rgba(60, 179, 113, 0.6)'    // Verde Medio
-        ];
-        return colores[index % colores.length];
-    }
-
-    // Función para exportar todos los gráficos a un solo PDF
-    async function exportarGraficoPDF() {
-        if (charts.length === 0) {
-            alert('No hay gráficos para exportar.');
-            return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'pt',
-            format: 'a4'
-        });
-
-        for (let i = 0; i < graficosContainer.children.length; i++) {
-            const contenedor = graficosContainer.children[i];
-            const canvas = contenedor.querySelector('canvas');
-            const titulo = contenedor.querySelector('h3').textContent;
-
-            await html2canvas(contenedor).then(canvasImg => {
-                const imgData = canvasImg.toDataURL('image/png');
-                const imgWidth = pdf.internal.pageSize.getWidth() - 40;
-                const imgHeight = (canvasImg.height * imgWidth) / canvasImg.width;
-
-                if (i > 0) {
-                    pdf.addPage();
-                }
-
-                pdf.setFontSize(16);
-                pdf.text(titulo, 20, 30);
-                pdf.addImage(imgData, 'PNG', 20, 40, imgWidth, imgHeight);
-            }).catch(error => {
-                console.error('Error al capturar el gráfico:', error);
-                alert('Hubo un error al exportar a PDF. Por favor, intenta nuevamente.');
-            });
-        }
-
-        pdf.save('graficos.pdf');
-    }
-
-    // Funciones para calcular porcentajes (copiando lógica de script.js)
-
-    // 1. Porcentajes TEA, TEP y TED de Toda la Escuela
-    function calcularPorcentajesTedTeaTepTodaEscuela() {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        for (const curso in gradesData) {
-            const datosCurso = gradesData[curso];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                for (const materia in materias) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 2. Porcentajes TEA, TEP y TED por Ciclo
-    function calcularPorcentajesTedTeaTepCiclo(ciclo) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        let cursosFiltrados = [];
-        if (ciclo === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (ciclo === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
-        }
-
-        cursosFiltrados.forEach(curso => {
-            const datosCurso = gradesData[curso.toLowerCase()];
-            if (!datosCurso) return;
-
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                for (const materia in materias) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        });
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 3. Porcentajes TEA, TEP y TED por Curso
-    function calcularPorcentajesTedTeaTepPorCurso(curso) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        const datosCurso = gradesData[curso.toLowerCase()];
-        if (!datosCurso) {
-            return { labels: ['TEA', 'TEP', 'TED'], data: [['0', '0', '0']] };
-        }
-
-        for (const alumno in datosCurso) {
-            const materias = datosCurso[alumno];
-            for (const materia in materias) {
-                const notasMateria = materias[materia];
-                if (notasMateria['Nota 1']) {
-                    totalNotas++;
-                    if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                    if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                    if (notasMateria['TED 1'] === 'X') totalTED++;
-                }
-                if (notasMateria['Nota 2']) {
-                    totalNotas++;
-                    if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                    if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                    if (notasMateria['TED 2'] === 'X') totalTED++;
-                }
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 4. Porcentajes TEA, TEP y TED por Alumno
-    function calcularPorcentajesTedTeaTepPorAlumno(ciclo, curso, alumno) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        const datosCurso = gradesData[curso.toLowerCase()];
-        if (!datosCurso || !datosCurso[alumno]) {
-            return { labels: ['TEA', 'TEP', 'TED'], data: [['0', '0', '0']] };
-        }
-
-        const materias = datosCurso[alumno];
-        for (const materia in materias) {
-            const notasMateria = materias[materia];
-            if (notasMateria['Nota 1']) {
-                totalNotas++;
-                if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                if (notasMateria['TED 1'] === 'X') totalTED++;
-            }
-            if (notasMateria['Nota 2']) {
-                totalNotas++;
-                if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                if (notasMateria['TED 2'] === 'X') totalTED++;
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 5. Porcentajes TEA, TEP y TED por Materia
-    function calcularPorcentajesMateria(ciclo, curso, materia) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        let cursosFiltrados = [];
-        if (ciclo === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (ciclo === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
-        } else if (ciclo === 'escuela') {
-            cursosFiltrados = Object.keys(gradesData).map(cursoItem => formatearCurso(cursoItem));
-        }
-
-        cursosFiltrados.forEach(cursoItem => {
-            const datosCurso = gradesData[cursoItem.toLowerCase()];
-            if (!datosCurso) return;
-
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        });
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 6. Porcentajes TEA, TEP y TED para Toda la Escuela en Materia específica
-    function calcularPorcentajesMateriaTodaEscuela(materia) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        for (const curso in gradesData) {
-            const datosCurso = gradesData[curso];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // Función para calcular Notas Numéricas por Alumno
-    function calcularNotasNumericasAlumno(ciclo, curso, alumno) {
-        let notas = [];
-        let labels = [];
-
-        let datosFiltrados = {};
-
-        if (ciclo === 'escuela') {
-            datosFiltrados = gradesData;
-        } else {
-            const cursosFiltrados = ciclo === 'ciclo-basico' ? cursosCicloBasico : cursosCicloSuperior;
-            cursosFiltrados.forEach(cursoItem => {
-                const datosCurso = gradesData[cursoItem.toLowerCase()];
-                if (datosCurso) {
-                    datosFiltrados[cursoItem.toLowerCase()] = datosCurso;
-                }
-            });
-        }
-
-        if (curso && datosFiltrados[curso.toLowerCase()]) {
-            const datosCurso = datosFiltrados[curso.toLowerCase()];
-            if (alumno) {
-                if (datosCurso[alumno]) {
-                    const materias = datosCurso[alumno];
-                    for (const materiaKey in materias) {
-                        const notasMateria = materias[materiaKey];
-                        if (notasMateria['Nota 1']) {
-                            notas.push(parseFloat(notasMateria['Nota 1']));
-                            labels.push(`Nota 1 - ${materiaKey.toUpperCase()}`);
-                        }
-                        if (notasMateria['Nota 2']) {
-                            notas.push(parseFloat(notasMateria['Nota 2']));
-                            labels.push(`Nota 2 - ${materiaKey.toUpperCase()}`);
-                        }
-                    }
-                }
-            } else {
-                // Todos los alumnos
-                for (const alumnoKey in datosCurso) {
-                    const materias = datosCurso[alumnoKey];
-                    for (const materiaKey in materias) {
-                        const notasMateria = materias[materiaKey];
-                        if (notasMateria['Nota 1']) {
-                            notas.push(parseFloat(notasMateria['Nota 1']));
-                            labels.push(`Nota 1 - ${materiaKey.toUpperCase()}`);
-                        }
-                        if (notasMateria['Nota 2']) {
-                            notas.push(parseFloat(notasMateria['Nota 2']));
-                            labels.push(`Nota 2 - ${materiaKey.toUpperCase()}`);
-                        }
-                    }
-                }
-            }
-        }
-
-        return { labels: labels, data: [notas] };
-    }
-
-    // Funciones para calcular Notas Numéricas por Materia
-    function calcularNotasNumericasMateria(ciclo, curso, materia) {
-        let notas = [];
-        let labels = [];
-
-        let datosFiltrados = {};
-
-        if (ciclo === 'escuela') {
-            datosFiltrados = gradesData;
-        } else {
-            const cursosFiltrados = ciclo === 'ciclo-basico' ? cursosCicloBasico : cursosCicloSuperior;
-            cursosFiltrados.forEach(cursoItem => {
-                const datosCurso = gradesData[cursoItem.toLowerCase()];
-                if (datosCurso) {
-                    datosFiltrados[cursoItem.toLowerCase()] = datosCurso;
-                }
-            });
-        }
-
-        if (curso && datosFiltrados[curso.toLowerCase()]) {
-            const datosCurso = datosFiltrados[curso.toLowerCase()];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        notas.push(parseFloat(notasMateria['Nota 1']));
-                        labels.push(`Nota 1 - ${alumno}`);
-                    }
-                    if (notasMateria['Nota 2']) {
-                        notas.push(parseFloat(notasMateria['Nota 2']));
-                        labels.push(`Nota 2 - ${alumno}`);
-                    }
-                }
-            }
-        }
-
-        return { labels: labels, data: [notas] };
-    }
-
-    // Función para crear y agregar un gráfico de Chart.js al contenedor
-    function crearChartCanvas(titulo, labels, data, etiquetas, tipo = 'bar') {
-        // Crear un contenedor para el gráfico
-        const contenedor = document.createElement('div');
-        contenedor.classList.add('chart-container');
-
-        // Crear un título para el gráfico
-        const tituloGrafico = document.createElement('h3');
-        tituloGrafico.textContent = titulo;
-        contenedor.appendChild(tituloGrafico);
-
-        // Crear el canvas
-        const canvas = document.createElement('canvas');
-        contenedor.appendChild(canvas);
-        graficosContainer.appendChild(contenedor);
-
-        // Determinar si es un gráfico de notas numéricas para ajustar la escala
-        const esGraficoNota = tipo === 'line' && etiquetas.includes('Notas');
-
-        // Crear el gráfico utilizando Chart.js
-        const chart = new Chart(canvas.getContext('2d'), {
-            type: tipo,
-            data: {
-                labels: labels,
-                datasets: etiquetas.map((etiqueta, index) => ({
-                    label: etiqueta,
-                    data: data[index],
-                    backgroundColor: generarColor(index),
-                    borderColor: generarColor(index),
-                    borderWidth: 1,
-                    fill: tipo === 'line' ? false : true
-                }))
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        position: 'top',
-                    },
-                    title: {
-                        display: true,
-                        text: titulo
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: esGraficoNota ? 10 : 100 // Escala de 1-10 para notas, 0-100 para porcentajes
-                    }
-                }
-            }
-        });
+        };
 
-        // Almacenar el gráfico para posible destrucción futura
-        charts.push(chart);
-    }
-
-    // Función para generar colores
-    function generarColor(index) {
-        const colores = [
-            'rgba(255, 99, 132, 0.6)',   // Rojo
-            'rgba(54, 162, 235, 0.6)',   // Azul
-            'rgba(255, 206, 86, 0.6)',   // Amarillo
-            'rgba(75, 192, 192, 0.6)',   // Verde
-            'rgba(153, 102, 255, 0.6)',  // Morado
-            'rgba(255, 159, 64, 0.6)',   // Naranja
-            'rgba(199, 199, 199, 0.6)',  // Gris
-            'rgba(83, 102, 255, 0.6)',   // Azul Claro
-            'rgba(255, 99, 71, 0.6)',    // Tomate
-            'rgba(60, 179, 113, 0.6)'    // Verde Medio
-        ];
-        return colores[index % colores.length];
-    }
-
-    // Función para exportar todos los gráficos a un solo PDF
-    async function exportarGraficoPDF() {
-        if (charts.length === 0) {
-            alert('No hay gráficos para exportar.');
-            return;
-        }
-
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'pt',
-            format: 'a4'
-        });
-
-        for (let i = 0; i < graficosContainer.children.length; i++) {
-            const contenedor = graficosContainer.children[i];
-            const canvas = contenedor.querySelector('canvas');
-            const titulo = contenedor.querySelector('h3').textContent;
-
-            await html2canvas(contenedor).then(canvasImg => {
-                const imgData = canvasImg.toDataURL('image/png');
-                const imgWidth = pdf.internal.pageSize.getWidth() - 40;
-                const imgHeight = (canvasImg.height * imgWidth) / canvasImg.width;
-
-                if (i > 0) {
-                    pdf.addPage();
-                }
-
-                pdf.setFontSize(16);
-                pdf.text(titulo, 20, 30);
-                pdf.addImage(imgData, 'PNG', 20, 40, imgWidth, imgHeight);
-            }).catch(error => {
-                console.error('Error al capturar el gráfico:', error);
-                alert('Hubo un error al exportar a PDF. Por favor, intenta nuevamente.');
+        // Para gráficos de línea y radar con múltiples datasets, ajustar opciones
+        if (type === 'line' || type === 'radar') {
+            config.data.datasets.forEach(dataset => {
+                dataset.fill = type === 'radar' ? true : false;
+                dataset.borderColor = dataset.backgroundColor.replace('0.6', '1');
+                dataset.borderWidth = 2;
             });
         }
 
-        pdf.save('graficos.pdf');
+        // Crear el gráfico
+        currentChart = new Chart(myChartCanvas, config);
+
+        clearMessage();
     }
 
-    // Funciones para calcular porcentajes (copiando lógica de script.js)
-
-    // 1. Porcentajes TEA, TEP y TED de Toda la Escuela
-    function calcularPorcentajesTedTeaTepTodaEscuela() {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        for (const curso in gradesData) {
-            const datosCurso = gradesData[curso];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                for (const materia in materias) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
+    // Función para generar colores aleatorios
+    function generateColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const r = Math.floor(Math.random() * 255);
+            const g = Math.floor(Math.random() * 255);
+            const b = Math.floor(Math.random() * 255);
+            colors.push(`rgba(${r}, ${g}, ${b}, 0.6)`);
         }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
+        return colors;
     }
 
-    // 2. Porcentajes TEA, TEP y TED por Ciclo
-    function calcularPorcentajesTedTeaTepCiclo(ciclo) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        let cursosFiltrados = [];
-        if (ciclo === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (ciclo === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
+    // Manejar el botón para exportar el gráfico a PDF
+    exportChartPDFButton.addEventListener('click', () => {
+        if (!currentChart) {
+            showMessage('No hay un gráfico para exportar.', 'warning');
+            return;
         }
 
-        cursosFiltrados.forEach(curso => {
-            const datosCurso = gradesData[curso.toLowerCase()];
-            if (!datosCurso) return;
+        html2canvas(myChartCanvas).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
 
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                for (const materia in materias) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
+            const imgWidth = 190; // Margen de 10 unidades en cada lado
+            const pageHeight = doc.internal.pageSize.height;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            doc.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+            doc.save('grafico.pdf');
+            showMessage('Gráfico exportado exitosamente a PDF.', 'success');
+        }).catch(error => {
+            console.error('Error al exportar a PDF:', error);
+            showMessage('Hubo un error al exportar el gráfico a PDF.', 'danger');
         });
+    });
 
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 3. Porcentajes TEA, TEP y TED por Curso
-    function calcularPorcentajesTedTeaTepPorCurso(curso) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        const datosCurso = gradesData[curso.toLowerCase()];
-        if (!datosCurso) {
-            return { labels: ['TEA', 'TEP', 'TED'], data: [['0', '0', '0']] };
-        }
-
-        for (const alumno in datosCurso) {
-            const materias = datosCurso[alumno];
-            for (const materia in materias) {
-                const notasMateria = materias[materia];
-                if (notasMateria['Nota 1']) {
-                    totalNotas++;
-                    if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                    if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                    if (notasMateria['TED 1'] === 'X') totalTED++;
-                }
-                if (notasMateria['Nota 2']) {
-                    totalNotas++;
-                    if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                    if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                    if (notasMateria['TED 2'] === 'X') totalTED++;
-                }
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 4. Porcentajes TEA, TEP y TED por Alumno
-    function calcularPorcentajesTedTeaTepPorAlumno(ciclo, curso, alumno) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        const datosCurso = gradesData[curso.toLowerCase()];
-        if (!datosCurso || !datosCurso[alumno]) {
-            return { labels: ['TEA', 'TEP', 'TED'], data: [['0', '0', '0']] };
-        }
-
-        const materias = datosCurso[alumno];
-        for (const materia in materias) {
-            const notasMateria = materias[materia];
-            if (notasMateria['Nota 1']) {
-                totalNotas++;
-                if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                if (notasMateria['TED 1'] === 'X') totalTED++;
-            }
-            if (notasMateria['Nota 2']) {
-                totalNotas++;
-                if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                if (notasMateria['TED 2'] === 'X') totalTED++;
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 5. Porcentajes TEA, TEP y TED por Materia
-    function calcularPorcentajesMateria(ciclo, curso, materia) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        let cursosFiltrados = [];
-        if (ciclo === 'ciclo-basico') {
-            cursosFiltrados = cursosCicloBasico;
-        } else if (ciclo === 'ciclo-superior') {
-            cursosFiltrados = cursosCicloSuperior;
-        } else if (ciclo === 'escuela') {
-            cursosFiltrados = Object.keys(gradesData).map(cursoItem => formatearCurso(cursoItem));
-        }
-
-        cursosFiltrados.forEach(cursoItem => {
-            const datosCurso = gradesData[cursoItem.toLowerCase()];
-            if (!datosCurso) return;
-
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        });
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
-    // 6. Porcentajes TEA, TEP y TED para Toda la Escuela en Materia específica
-    function calcularPorcentajesMateriaTodaEscuela(materia) {
-        let totalTEA = 0;
-        let totalTEP = 0;
-        let totalTED = 0;
-        let totalNotas = 0;
-
-        for (const curso in gradesData) {
-            const datosCurso = gradesData[curso];
-            for (const alumno in datosCurso) {
-                const materias = datosCurso[alumno];
-                if (materias[materia]) {
-                    const notasMateria = materias[materia];
-                    if (notasMateria['Nota 1']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 1'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 1'] === 'X') totalTEP++;
-                        if (notasMateria['TED 1'] === 'X') totalTED++;
-                    }
-                    if (notasMateria['Nota 2']) {
-                        totalNotas++;
-                        if (notasMateria['TEA 2'] === 'X') totalTEA++;
-                        if (notasMateria['TEP 2'] === 'X') totalTEP++;
-                        if (notasMateria['TED 2'] === 'X') totalTED++;
-                    }
-                }
-            }
-        }
-
-        const porcentajeTEA = totalNotas ? ((totalTEA / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTEP = totalNotas ? ((totalTEP / totalNotas) * 100).toFixed(2) : '0';
-        const porcentajeTED = totalNotas ? ((totalTED / totalNotas) * 100).toFixed(2) : '0';
-
-        return { labels: ['TEA', 'TEP', 'TED'], data: [[porcentajeTEA, porcentajeTEP, porcentajeTED]] };
-    }
-
+    // Inicializar Selectores Dinámicos al cargar la página
+    initializeDynamicSelectors();
 });
