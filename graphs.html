@@ -82,21 +82,20 @@
                 <small class="form-text text-muted">Mantén presionada la tecla Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples cursos.</small>
             </div>
 
-            <!-- Filtro por Materia -->
+            <!-- Filtro por Materia (Múltiple) -->
             <div class="col-md-3">
-                <label for="subjectSelector" class="form-label">Selecciona la Materia:</label>
-                <select id="subjectSelector" class="form-select">
-                    <option value="">-- Seleccionar --</option>
+                <label for="subjectSelector" class="form-label">Selecciona la(s) Materia(s):</label>
+                <select id="subjectSelector" class="form-select" multiple>
                     <!-- Opciones se llenarán dinámicamente -->
                 </select>
+                <small class="form-text text-muted">Mantén presionada la tecla Ctrl (Windows) o Cmd (Mac) para seleccionar múltiples materias.</small>
             </div>
 
-            <!-- Filtro por Alumno Individual (Solo para Notas por Alumno) -->
+            <!-- Filtro por Alumno (Solo para "Notas por Alumno") -->
             <div class="col-md-3" id="studentFilterContainer" style="display: none;">
                 <label for="studentSelector" class="form-label">Selecciona el Alumno:</label>
                 <select id="studentSelector" class="form-select">
                     <option value="">-- Seleccionar --</option>
-                    <!-- Opciones se llenarán dinámicamente -->
                 </select>
             </div>
 
@@ -106,24 +105,22 @@
             </div>
         </div>
 
-        <!-- Canvas para el Gráfico -->
+        <!-- Contenedor para múltiples gráficos -->
+        <div id="chartsContainer" class="mb-4"></div>
+
+        <!-- Botón para Exportar Gráficos a PDF -->
         <div class="mb-4">
-            <canvas id="myChart"></canvas>
+            <button id="exportChartPDFButton" class="btn btn-success">Exportar Gráficos a PDF</button>
         </div>
 
-        <!-- Botón para Exportar Gráfico a PDF -->
-        <div class="mb-4">
-            <button id="exportChartPDFButton" class="btn btn-success">Exportar Gráfico a PDF</button>
-        </div>
-
-        <!-- Contenedor para Mensajes -->
+        <!-- Contenedor de Mensajes -->
         <div id="messageContainer"></div>
     </div>
 
     <!-- Librerías Externas -->
     <!-- Bootstrap JS y dependencias -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Archivos JavaScript Personalizados -->
+    <!-- Archivo JavaScript Personalizado -->
     <script src="graphs.js"></script>
 </body>
 </html>
