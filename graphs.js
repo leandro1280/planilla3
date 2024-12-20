@@ -1,5 +1,3 @@
-// graphs.js
-
 document.addEventListener('DOMContentLoaded', () => {
     // Elementos del DOM
     const dataSelector = document.getElementById('dataSelector');
@@ -13,17 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const applyFilterButton = document.getElementById('applyFilterButton');
     const exportChartPDFButton = document.getElementById('exportChartPDFButton');
     const messageContainer = document.getElementById('messageContainer');
-    const myChartCanvas = document.getElementById('myChart');
     const studentFilterContainer = document.getElementById('studentFilterContainer');
     const studentSelector = document.getElementById('studentSelector');
 
-    let currentChart = null;
-
-    // Cargar datos de localStorage
     let gradesData = JSON.parse(localStorage.getItem('gradesData')) || {};
     let materiasPorCurso = JSON.parse(localStorage.getItem('materiasPorCurso')) || {};
 
-    // Definición de ciclos y cursos por ciclo
     const cursosCicloBasico = [
         '1ro 1ra', '1ro 2da', '1ro 3ra',
         '2do 1ra', '2do 2da', '2do 3ra',
@@ -36,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
         '6to 1ra', '6to 2da'
     ];
 
-    // Definición de materias por curso (si no están ya definidas en localStorage)
     if (Object.keys(materiasPorCurso).length === 0) {
         materiasPorCurso = {
             '1ro 1ra': ['CNT', 'CS', 'CCD', 'ART', 'EFC', 'IGS', 'MTM', 'PLG'],
@@ -57,7 +49,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('materiasPorCurso', JSON.stringify(materiasPorCurso));
     }
 
-    // Función para mostrar mensajes
     function showMessage(message, type = 'info') {
         messageContainer.innerHTML = `
             <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -67,14 +58,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
     }
 
-    // Función para limpiar mensajes
     function clearMessage() {
         messageContainer.innerHTML = '';
     }
 
-    // Inicializar Selectores Dinámicos
     function initializeDynamicSelectors() {
-        // Mostrar u ocultar el contenedor de filtro de alumno según la selección de datos
         dataSelector.addEventListener('change', () => {
             const selectedData = dataSelector.value;
             if (selectedData === 'alumno') {
@@ -87,30 +75,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (selectedData) {
                 additionalFilters.style.display = 'block';
-                populateCourseSelector(); // Actualizar cursos según ciclo seleccionado
+                populateCourseSelector();
             } else {
                 additionalFilters.style.display = 'none';
                 resetAdditionalFilters();
             }
         });
 
-        // Manejar la selección del ciclo para actualizar los cursos disponibles
         cycleSelector.addEventListener('change', () => {
             populateCourseSelector();
             populateSubjectSelector();
         });
 
-        // Manejar la selección de tipo de nota para ajustar el selector de materias
         noteTypeSelector.addEventListener('change', () => {
             populateSubjectSelector();
         });
 
-        // Manejar la selección de cursos para actualizar las materias disponibles
         courseSelector.addEventListener('change', () => {
             populateSubjectSelector();
         });
 
-        // Manejar la selección de datos a graficar para ajustar los filtros
         dataSelector.addEventListener('change', () => {
             const selectedData = dataSelector.value;
             if (selectedData === 'alumno') {
@@ -123,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Función para llenar el selector de cursos
     function populateCourseSelector() {
         courseSelector.innerHTML = '';
         const selectedCycle = cycleSelector.value;
@@ -146,12 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
         courseSelector.disabled = false;
 
         cursosDisponibles.forEach(curso => {
-            const cursoKey = curso.toLowerCase();
             courseSelector.innerHTML += `<option value="${curso}">${curso.toUpperCase()}</option>`;
         });
     }
 
-    // Función para llenar el selector de materias
     function populateSubjectSelector() {
         subjectSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
         const selectedCycle = cycleSelector.value;
@@ -170,15 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // Convertir a array y ordenar
         const materiasArray = Array.from(materiasSet).sort();
-
         materiasArray.forEach(materia => {
             subjectSelector.innerHTML += `<option value="${materia}">${materia}</option>`;
         });
     }
 
-    // Función para llenar el selector de alumnos
     function populateStudentSelector() {
         studentSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
         let todosAlumnos = new Set();
@@ -190,13 +168,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const alumnosArray = Array.from(todosAlumnos).sort();
-
         alumnosArray.forEach(alumno => {
             studentSelector.innerHTML += `<option value="${alumno}">${alumno}</option>`;
         });
     }
 
-    // Función para resetear los filtros adicionales
     function resetAdditionalFilters() {
         noteTypeSelector.value = 'numerica';
         cycleSelector.value = '';
@@ -205,13 +181,12 @@ document.addEventListener('DOMContentLoaded', () => {
         subjectSelector.innerHTML = '<option value="">-- Seleccionar --</option>';
     }
 
-    // Manejar el botón para aplicar los filtros y generar el gráfico
     applyFilterButton.addEventListener('click', () => {
         const selectedData = dataSelector.value;
         const noteType = noteTypeSelector.value;
         const cycle = cycleSelector.value;
         const selectedCourses = Array.from(courseSelector.selectedOptions).map(option => option.value);
-        const subject = subjectSelector.value;
+        const selectedSubjects = Array.from(subjectSelector.selectedOptions).map(option => option.value);
         const selectedStudent = studentSelector.value;
 
         // Validaciones
@@ -230,8 +205,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if ((selectedData !== 'alumno') && !subject) {
-            showMessage('Por favor, selecciona una materia.', 'warning');
+        if ((selectedData !== 'alumno') && selectedSubjects.length === 0) {
+            showMessage('Por favor, selecciona al menos una materia.', 'warning');
             return;
         }
 
@@ -240,80 +215,97 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // Procesar y obtener los datos para el gráfico
-        let chartLabels = [];
-        let chartDatasets = [];
-        let chartTitle = '';
+        const chartsContainer = document.getElementById('chartsContainer');
+        chartsContainer.innerHTML = '';
+        clearMessage();
 
-        if (selectedData === 'general') {
-            // Porcentajes Generales
-            if (noteType === 'numerica') {
-                showMessage('Las notas numéricas no están disponibles para porcentajes generales. Selecciona TEA/TEP/TED.', 'warning');
-                return;
-            }
-
-            if (cycle === 'ciclo-basico' || cycle === 'ciclo-superior') {
-                selectedCourses.forEach(curso => {
-                    const porcentaje = calculateGeneralPercentages(curso, subject);
-                    chartDatasets.push({
-                        label: curso.toUpperCase(),
-                        data: [porcentaje.TEA, porcentaje.TEP, porcentaje.TED],
-                        backgroundColor: generateColors(3)
-                    });
-                });
-
-                chartLabels = ['TEA', 'TEP', 'TED'];
-                chartTitle = `Porcentajes Generales en ${subject} por Curso (${cycle.replace('-', ' ').toUpperCase()})`;
-            }
-        } else if (selectedData === 'materia') {
-            // Porcentajes por Materia
-            if (noteType === 'numerica') {
-                showMessage('Las notas numéricas no están disponibles para porcentajes por materia. Selecciona TEA/TEP/TED.', 'warning');
-                return;
-            }
-
-            selectedCourses.forEach(curso => {
-                const porcentaje = calculateGeneralPercentages(curso, subject);
-                chartDatasets.push({
-                    label: curso.toUpperCase(),
-                    data: [porcentaje.TEA, porcentaje.TEP, porcentaje.TED],
-                    backgroundColor: generateColors(3)
-                });
-            });
-
-            chartLabels = ['TEA', 'TEP', 'TED'];
-            chartTitle = `Porcentajes en ${subject} por Curso (${cycle.replace('-', ' ').toUpperCase()})`;
-        } else if (selectedData === 'alumno') {
+        if (selectedData === 'alumno') {
             // Notas por Alumno
             if (noteType === 'tea_tep_ted') {
-                showMessage('Las notas TEA/TEP/TED no son numéricas. Selecciona "Nota Numérica" para este tipo de datos.', 'warning');
+                showMessage('Las notas TEA/TEP/TED no son numéricas. Selecciona "Nota Numérica".', 'warning');
                 return;
             }
 
             const alumnoNotas = getAlumnoNotas(selectedStudent);
-            chartLabels = Object.keys(alumnoNotas);
-            chartDatasets.push({
+            // Filtrar las notas por las materias seleccionadas (si se desea)
+            const filteredNotas = {};
+            Object.keys(alumnoNotas).forEach(clave => {
+                const materiaClave = clave.split(' ')[0]; 
+                if (selectedSubjects.length === 0 || selectedSubjects.includes(materiaClave)) {
+                    filteredNotas[clave] = alumnoNotas[clave];
+                }
+            });
+
+            if (Object.keys(filteredNotas).length === 0) {
+                showMessage('No hay notas para las materias seleccionadas.', 'info');
+                return;
+            }
+
+            const canvas = document.createElement('canvas');
+            chartsContainer.appendChild(canvas);
+
+            const chartLabels = Object.keys(filteredNotas);
+            const chartDatasets = [{
                 label: 'Nota',
-                data: Object.values(alumnoNotas),
+                data: Object.values(filteredNotas),
                 backgroundColor: 'rgba(54, 162, 235, 0.6)',
                 borderColor: 'rgba(54, 162, 235, 1)',
                 fill: true
+            }];
+
+            const chartTitle = `Notas de ${selectedStudent} en sus Materias`;
+            renderChart(canvas, chartLabels, chartDatasets, chartTypeSelector.value, chartTitle);
+
+        } else {
+            // Porcentajes Generales o Por Materia (TEA/TEP/TED)
+            if (noteType === 'numerica') {
+                showMessage('Las notas numéricas no aplican para porcentajes TEA/TEP/TED. Selecciona TEA/TEP/TED.', 'warning');
+                return;
+            }
+
+            selectedSubjects.forEach(materia => {
+                const teaData = [];
+                const tepData = [];
+                const tedData = [];
+
+                selectedCourses.forEach(curso => {
+                    const porcentaje = calculateGeneralPercentages(curso, materia);
+                    teaData.push(parseFloat(porcentaje.TEA));
+                    tepData.push(parseFloat(porcentaje.TEP));
+                    tedData.push(parseFloat(porcentaje.TED));
+                });
+
+                const chartLabels = selectedCourses.map(c => c.toUpperCase());
+                const chartDatasets = [
+                    {
+                        label: 'TEA',
+                        data: teaData,
+                        backgroundColor: '#00BFFF' 
+                    },
+                    {
+                        label: 'TEP',
+                        data: tepData,
+                        backgroundColor: '#FFA500' 
+                    },
+                    {
+                        label: 'TED',
+                        data: tedData,
+                        backgroundColor: '#EE82EE'
+                    }
+                    
+                ];
+
+                const chartTitle = `Porcentajes Generales en ${materia} por Curso (${cycle.replace('-', ' ').toUpperCase()})`;
+
+                const canvas = document.createElement('canvas');
+                canvas.style.marginBottom = '50px';
+                chartsContainer.appendChild(canvas);
+
+                renderChart(canvas, chartLabels, chartDatasets, chartTypeSelector.value, chartTitle);
             });
-
-            chartTitle = `Notas de ${selectedStudent} en sus Materias`;
         }
-
-        // Verificar si hay datos para graficar
-        if ((selectedData !== 'alumno') && chartDatasets.length === 0) {
-            showMessage('No hay datos para mostrar en el gráfico seleccionado.', 'info');
-            return;
-        }
-
-        // Renderizar el gráfico
-        renderChart(chartLabels, chartDatasets, chartTypeSelector.value, chartTitle);
     });
 
-    // Función para calcular porcentajes generales
     function calculateGeneralPercentages(curso, materia) {
         let totalTEA = 0, totalTEP = 0, totalTED = 0, totalNotas = 0;
         const cursoKey = curso.toLowerCase();
@@ -343,10 +335,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return { TEA: porcentajeTEA, TEP: porcentajeTEP, TED: porcentajeTED };
     }
 
-    // Función para obtener las notas de un alumno individual
     function getAlumnoNotas(alumno) {
         let notas = {};
-
         for (const curso in gradesData) {
             const datosCurso = gradesData[curso];
             if (datosCurso[alumno]) {
@@ -362,18 +352,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-
         return notas;
     }
 
-    // Función para renderizar el gráfico
-    function renderChart(labels, datasets, type, title) {
-        // Limpiar el gráfico existente si hay uno
-        if (currentChart) {
-            currentChart.destroy();
-        }
-
-        // Configuración del gráfico
+    function renderChart(canvas, labels, datasets, type, title) {
         const config = {
             type: type,
             data: {
@@ -394,65 +376,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 scales: {
                     y: {
                         beginAtZero: true,
-                        // Ajustar el rango de acuerdo al tipo de dato
-                        suggestedMax: type === 'radar' || type === 'line' ? 10 : 100
+                        suggestedMax: (type === 'radar' || type === 'line') ? 10 : 100
                     }
                 }
             },
         };
 
-        // Para gráficos de línea y radar con múltiples datasets, ajustar opciones
         if (type === 'line' || type === 'radar') {
             config.data.datasets.forEach(dataset => {
-                dataset.fill = type === 'radar' ? true : false;
-                dataset.borderColor = dataset.backgroundColor.replace('0.6', '1');
-                dataset.borderWidth = 2;
+                dataset.fill = (type === 'radar');
+                if (dataset.borderColor) {
+                    dataset.borderWidth = 2;
+                } else {
+                    const bg = dataset.backgroundColor;
+                    dataset.borderColor = (Array.isArray(bg) ? bg[0] : bg).replace('0.6', '1');
+                    dataset.borderWidth = 2;
+                }
             });
         }
 
-        // Crear el gráfico
-        currentChart = new Chart(myChartCanvas, config);
-
+        new Chart(canvas, config);
         clearMessage();
     }
 
-    // Función para generar colores aleatorios
-    function generateColors(count) {
-        const colors = [];
-        for (let i = 0; i < count; i++) {
-            const r = Math.floor(Math.random() * 255);
-            const g = Math.floor(Math.random() * 255);
-            const b = Math.floor(Math.random() * 255);
-            colors.push(`rgba(${r}, ${g}, ${b}, 0.6)`);
-        }
-        return colors;
-    }
-
-    // Manejar el botón para exportar el gráfico a PDF
     exportChartPDFButton.addEventListener('click', () => {
-        if (!currentChart) {
-            showMessage('No hay un gráfico para exportar.', 'warning');
+        const chartsContainer = document.getElementById('chartsContainer');
+        if (!chartsContainer.querySelector('canvas')) {
+            showMessage('No hay gráficos para exportar.', 'warning');
             return;
         }
 
-        html2canvas(myChartCanvas).then(canvas => {
+        // Capturar todo el contenedor con todos los gráficos
+        html2canvas(chartsContainer).then(canvas => {
             const imgData = canvas.toDataURL('image/png');
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            const imgWidth = 190; // Margen de 10 unidades en cada lado
-            const pageHeight = doc.internal.pageSize.height;
+            const imgWidth = 190;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
             doc.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
-            doc.save('grafico.pdf');
-            showMessage('Gráfico exportado exitosamente a PDF.', 'success');
+            doc.save('graficos.pdf');
+            showMessage('Gráficos exportados exitosamente a PDF.', 'success');
         }).catch(error => {
             console.error('Error al exportar a PDF:', error);
-            showMessage('Hubo un error al exportar el gráfico a PDF.', 'danger');
+            showMessage('Hubo un error al exportar los gráficos a PDF.', 'danger');
         });
     });
 
-    // Inicializar Selectores Dinámicos al cargar la página
+    // Inicializar los selectores al cargar
     initializeDynamicSelectors();
 });
+
