@@ -1,0 +1,213 @@
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <i class="bi bi-person-plus-fill text-primary" style="font-size: 3rem;"></i>
+                    <h2 class="mt-3 mb-1">Crear Cuenta</h2>
+                    <p class="text-muted">Regístrate para acceder al sistema</p>
+                </div>
+
+                <form id="registerForm" method="POST" action="/auth/register">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="first_name" class="form-label">Nombre</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="last_name" class="form-label">Apellido</label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="bi bi-person"></i>
+                                </span>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-envelope"></i>
+                            </span>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock"></i>
+                            </span>
+                            <input type="password" class="form-control" id="password" name="password" required minlength="6">
+                            <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="form-text">Mínimo 6 caracteres</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirmar Contraseña</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="role" class="form-label">Rol</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Seleccionar rol</option>
+                            <option value="teacher">Profesor</option>
+                            <option value="secretary">Secretario</option>
+                            <option value="director">Director</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="school_code" class="form-label">Código de Escuela (Opcional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-building"></i>
+                            </span>
+                            <input type="text" class="form-control" id="school_code" name="school_code" placeholder="Código de la escuela">
+                        </div>
+                        <div class="form-text">Si tienes un código de escuela, ingrésalo aquí</div>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" name="terms" required>
+                        <label class="form-check-label" for="terms">
+                            Acepto los <a href="#" class="text-decoration-none">términos y condiciones</a>
+                        </label>
+                    </div>
+
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus me-2"></i>Crear Cuenta
+                        </button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="mb-0">¿Ya tienes cuenta? 
+                        <a href="/auth/login" class="text-decoration-none">Inicia sesión aquí</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const registerForm = document.getElementById('registerForm');
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirm_password');
+
+    // Toggle password visibility
+    togglePassword.addEventListener('click', function() {
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        const icon = this.querySelector('i');
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+    });
+
+    // Validate password confirmation
+    confirmPasswordInput.addEventListener('input', function() {
+        if (this.value !== passwordInput.value) {
+            this.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+
+    passwordInput.addEventListener('input', function() {
+        if (confirmPasswordInput.value && this.value !== confirmPasswordInput.value) {
+            confirmPasswordInput.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+            confirmPasswordInput.setCustomValidity('');
+        }
+    });
+
+    // Handle form submission
+    registerForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        // Validate passwords match
+        if (passwordInput.value !== confirmPasswordInput.value) {
+            showAlert('Las contraseñas no coinciden', 'danger');
+            return;
+        }
+
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando cuenta...';
+        submitBtn.disabled = true;
+
+        try {
+            const formData = new FormData(this);
+            const response = await fetch('/auth/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    first_name: formData.get('first_name'),
+                    last_name: formData.get('last_name'),
+                    email: formData.get('email'),
+                    password: formData.get('password'),
+                    role: formData.get('role'),
+                    school_code: formData.get('school_code') || null
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Success - redirect to dashboard
+                showAlert('Cuenta creada exitosamente. Redirigiendo...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+            } else {
+                // Show error
+                showAlert(data.error || 'Error al crear cuenta', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error de conexión. Intenta de nuevo.', 'danger');
+        } finally {
+            // Reset button
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+
+    function showAlert(message, type) {
+        const alertContainer = document.getElementById('alertContainer');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-exclamation-triangle me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.appendChild(alert);
+    }
+});
+</script>
