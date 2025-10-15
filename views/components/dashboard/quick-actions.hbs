@@ -1,0 +1,46 @@
+<!-- Quick Actions -->
+{{#if school}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-lightning-charge me-2"></i>Acciones Rápidas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <a href="/students" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="bi bi-people-fill fs-1 mb-2"></i>
+                            <span class="fw-bold">Gestionar Estudiantes</span>
+                            <small class="text-muted">Ver y administrar estudiantes</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/grades" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="bi bi-journal-text fs-1 mb-2"></i>
+                            <span class="fw-bold">Calificaciones</span>
+                            <small class="text-muted">Registrar y ver notas</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <a href="/reports" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                            <i class="bi bi-graph-up fs-1 mb-2"></i>
+                            <span class="fw-bold">Reportes</span>
+                            <small class="text-muted">Generar informes académicos</small>
+                        </a>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4" data-bs-toggle="modal" data-bs-target="#statsModal">
+                            <i class="bi bi-pie-chart fs-1 mb-2"></i>
+                            <span class="fw-bold">Estadísticas</span>
+                            <small class="text-muted">Ver análisis detallados</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}

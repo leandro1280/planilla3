@@ -1,0 +1,173 @@
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtro de cursos por ciclo
+    const cycleFilters = document.querySelectorAll('input[name="cycleFilter"]');
+    const coursesTable = document.getElementById('coursesTable');
+    const tableRows = coursesTable.querySelectorAll('tbody tr');
+
+    cycleFilters.forEach(filter => {
+        filter.addEventListener('change', function() {
+            const selectedCycle = this.value;
+            
+            tableRows.forEach(row => {
+                if (selectedCycle === 'all' || row.dataset.cycle === selectedCycle) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Botón de actualizar estadísticas
+    document.getElementById('refreshStats').addEventListener('click', function() {
+        location.reload();
+    });
+
+    // Cargar estadísticas en el modal
+    document.getElementById('loadStats').addEventListener('click', loadDetailedStats);
+    
+    // Cargar estadísticas al abrir el modal
+    document.getElementById('statsModal').addEventListener('show.bs.modal', loadDetailedStats);
+
+    async function loadDetailedStats() {
+        const year = document.getElementById('statsYear').value;
+        const semester = document.getElementById('statsSemester').value;
+        const content = document.getElementById('statsContent');
+
+        content.innerHTML = `
+            <div class="text-center py-3">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-2">Cargando estadísticas...</p>
+            </div>
+        `;
+
+        try {
+            const response = await fetch(`/dashboard/stats?year=${year}&semester=${semester}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                renderDetailedStats(data, content);
+            } else {
+                content.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Error al cargar las estadísticas: ${data.error}
+                    </div>
+                `;
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            content.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Error de conexión al cargar las estadísticas.
+                </div>
+            `;
+        }
+    }
+
+    function renderDetailedStats(data, container) {
+        if (data.subjectStats.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    No hay datos de calificaciones para los filtros seleccionados.
+                </div>
+            `;
+            return;
+        }
+
+        const chartData = {
+            labels: data.subjectStats.map(s => s.subject.code),
+            datasets: [
+                {
+                    label: 'TEA',
+                    data: data.subjectStats.map(s => parseFloat(s.tea_percentage)),
+                    backgroundColor: 'rgba(40, 167, 69, 0.8)',
+                    borderColor: 'rgba(40, 167, 69, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'TEP',
+                    data: data.subjectStats.map(s => parseFloat(s.tep_percentage)),
+                    backgroundColor: 'rgba(255, 193, 7, 0.8)',
+                    borderColor: 'rgba(255, 193, 7, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'TED',
+                    data: data.subjectStats.map(s => parseFloat(s.ted_percentage)),
+                    backgroundColor: 'rgba(220, 53, 69, 0.8)',
+                    borderColor: 'rgba(220, 53, 69, 1)',
+                    borderWidth: 1
+                }
+            ]
+        };
+
+        container.innerHTML = `
+            <div class="row">
+                <div class="col-12">
+                    <h6>Distribución por Materia - Año ${data.year}${data.semester ? ` - Cuatrimestre ${data.semester}` : ''}</h6>
+                    <canvas id="subjectChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="table-responsive">
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Materia</th>
+                                    <th>Total</th>
+                                    <th>TEA</th>
+                                    <th>TEP</th>
+                                    <th>TED</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.subjectStats.map(s => `
+                                    <tr>
+                                        <td><strong>${s.subject.code}</strong> - ${s.subject.name}</td>
+                                        <td>${s.total_grades}</td>
+                                        <td><span class="text-success">${s.tea_percentage}%</span> (${s.tea_count})</td>
+                                        <td><span class="text-warning">${s.tep_percentage}%</span> (${s.tep_count})</td>
+                                        <td><span class="text-danger">${s.ted_percentage}%</span> (${s.ted_count})</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Crear gráfico
+        const ctx = document.getElementById('subjectChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+                    title: {
+                        display: true,
+                        text: 'Distribución TEA/TEP/TED por Materia'
+                    }
+                }
+            }
+        });
+    }
+});
+</script>

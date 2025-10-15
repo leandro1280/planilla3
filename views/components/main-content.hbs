@@ -1,0 +1,16 @@
+<!-- Main Content -->
+<main class="{{#unless user}}auth-container{{/unless}}">
+    {{#if user}}
+    <div class="container-fluid mt-4">
+    {{/if}}
+        
+        <!-- Alertas -->
+        <div id="alertContainer"></div>
+        
+        <!-- Contenido de la página -->
+        {{{body}}}
+        
+    {{#if user}}
+    </div>
+    {{/if}}
+</main>

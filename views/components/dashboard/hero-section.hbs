@@ -1,0 +1,57 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-speedometer2 me-3"></i>Dashboard Escolar
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Bienvenido al sistema de gestión escolar. Monitorea el rendimiento académico y gestiona toda la información de tu institución educativa.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="badge bg-primary fs-6 px-3 py-2">
+                        <i class="bi bi-building me-2"></i>{{#if school}}{{school.name}}{{else}}Selecciona una escuela{{/if}}
+                    </div>
+                    <div class="badge bg-success fs-6 px-3 py-2">
+                        <i class="bi bi-calendar3 me-2"></i>Año Académico {{currentYear}}
+                    </div>
+                    <div class="badge bg-info fs-6 px-3 py-2">
+                        <i class="bi bi-person-circle me-2"></i>{{user.first_name}} {{user.last_name}}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4 text-end">
+            <div class="hero-actions">
+                <button type="button" class="btn btn-outline-primary btn-lg me-2" id="refreshStats">
+                    <i class="bi bi-arrow-clockwise me-2"></i>Actualizar
+                </button>
+                <button type="button" class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#statsModal">
+                    <i class="bi bi-graph-up me-2"></i>Estadísticas
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- School Selection (if multiple schools) -->
+{{#unless school}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Selecciona una Escuela
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-3">Para acceder al dashboard, primero debes seleccionar una escuela:</p>
+                <button type="button" class="btn btn-warning" id="selectSchoolBtn">
+                    <i class="bi bi-building me-2"></i>Seleccionar Escuela
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{{/unless}}

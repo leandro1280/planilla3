@@ -1,0 +1,90 @@
+/* Fix urgente para el problema de texto vertical */
+
+/* Reset completo para todos los elementos */
+* {
+    white-space: normal !important;
+    word-wrap: break-word !important;
+    display: block !important;
+    text-align: left !important;
+}
+
+/* Fix específico para textos centrados */
+.text-center {
+    text-align: center !important;
+}
+
+.text-center * {
+    display: block !important;
+    text-align: center !important;
+    white-space: normal !important;
+}
+
+/* Fix para h1, h2, h3, etc. */
+h1, h2, h3, h4, h5, h6 {
+    white-space: normal !important;
+    display: block !important;
+    text-align: inherit !important;
+    line-height: 1.2 !important;
+}
+
+/* Fix para párrafos */
+p {
+    white-space: normal !important;
+    display: block !important;
+    text-align: inherit !important;
+}
+
+/* Fix para spans */
+span {
+    white-space: normal !important;
+    display: inline !important;
+}
+
+/* Fix para iconos */
+i {
+    display: inline-block !important;
+    white-space: normal !important;
+}
+
+/* Fix para botones */
+button, .btn {
+    white-space: normal !important;
+    display: inline-block !important;
+    text-align: center !important;
+}
+
+/* Fix para inputs */
+input, select, textarea {
+    white-space: normal !important;
+    display: block !important;
+}
+
+/* Fix para labels */
+label {
+    white-space: normal !important;
+    display: block !important;
+}
+
+/* Fix para divs */
+div {
+    white-space: normal !important;
+    display: block !important;
+}
+
+/* Fix para elementos flex */
+.flex, .d-flex {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* Fix para elementos inline */
+.inline, .d-inline {
+    display: inline !important;
+    white-space: normal !important;
+}
+
+/* Fix para elementos inline-block */
+.inline-block, .d-inline-block {
+    display: inline-block !important;
+    white-space: normal !important;
+}

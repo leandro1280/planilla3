@@ -1,0 +1,74 @@
+<!-- Distribución TEA/TEP/TED -->
+{{#if school}}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>Distribución de Calificaciones TEA/TEP/TED
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-8">
+                        <div class="row text-center">
+                            <div class="col-md-4 mb-3">
+                                <div class="grade-distribution-card tea-card">
+                                    <div class="grade-circle">
+                                        <i class="bi bi-check-circle-fill"></i>
+                                    </div>
+                                    <h3 class="fw-bold text-success mb-2">{{generalStats.tea_percentage}}%</h3>
+                                    <h6 class="text-success mb-1">TEA</h6>
+                                    <p class="text-muted mb-1">{{generalStats.tea_count}} estudiantes</p>
+                                    <small class="text-muted">Trabajo Excelente/Avanzado</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="grade-distribution-card tep-card">
+                                    <div class="grade-circle">
+                                        <i class="bi bi-clock-fill"></i>
+                                    </div>
+                                    <h3 class="fw-bold text-warning mb-2">{{generalStats.tep_percentage}}%</h3>
+                                    <h6 class="text-warning mb-1">TEP</h6>
+                                    <p class="text-muted mb-1">{{generalStats.tep_count}} estudiantes</p>
+                                    <small class="text-muted">Trabajo En Proceso</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="grade-distribution-card ted-card">
+                                    <div class="grade-circle">
+                                        <i class="bi bi-exclamation-triangle-fill"></i>
+                                    </div>
+                                    <h3 class="fw-bold text-danger mb-2">{{generalStats.ted_percentage}}%</h3>
+                                    <h6 class="text-danger mb-1">TED</h6>
+                                    <p class="text-muted mb-1">{{generalStats.ted_count}} estudiantes</p>
+                                    <small class="text-muted">Trabajo En Desarrollo</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="grade-summary">
+                            <h6 class="mb-3">Resumen de Rendimiento</h6>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-success" style="width: {{generalStats.tea_percentage}}%"></div>
+                            </div>
+                            <div class="progress mb-2" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: {{generalStats.tep_percentage}}%"></div>
+                            </div>
+                            <div class="progress mb-3" style="height: 8px;">
+                                <div class="progress-bar bg-danger" style="width: {{generalStats.ted_percentage}}%"></div>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span class="badge bg-success">{{generalStats.tea_percentage}}% TEA</span>
+                                <span class="badge bg-warning">{{generalStats.tep_percentage}}% TEP</span>
+                                <span class="badge bg-danger">{{generalStats.ted_percentage}}% TED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}

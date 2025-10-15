@@ -1,0 +1,69 @@
+<!-- Estadísticas Generales -->
+{{#if school}}
+<div class="row mb-4">
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card bg-gradient-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1">{{stats.courses}}</h2>
+                        <p class="mb-0 opacity-90">Cursos Activos</p>
+                        <small class="opacity-75">Este año académico</small>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card bg-gradient-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1">{{stats.students}}</h2>
+                        <p class="mb-0 opacity-90">Estudiantes</p>
+                        <small class="opacity-75">Matriculados</small>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card bg-gradient-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1">{{stats.teachers}}</h2>
+                        <p class="mb-0 opacity-90">Profesores</p>
+                        <small class="opacity-75">Activos</small>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-md-6 mb-3">
+        <div class="card stats-card bg-gradient-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-1">{{generalStats.total_grades}}</h2>
+                        <p class="mb-0 opacity-90">Calificaciones</p>
+                        <small class="opacity-75">Registradas</small>
+                    </div>
+                    <div class="stats-icon">
+                        <i class="bi bi-journal-text"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}

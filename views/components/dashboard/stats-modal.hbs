@@ -1,0 +1,44 @@
+<!-- Modal de Estadísticas Detalladas -->
+<div class="modal fade" id="statsModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Estadísticas Detalladas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label for="statsYear" class="form-label">Año</label>
+                        <select class="form-select" id="statsYear">
+                            <option value="{{currentYear}}">{{currentYear}}</option>
+                            <option value="{{currentYear}}-1">{{currentYear}}-1</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="statsSemester" class="form-label">Cuatrimestre</label>
+                        <select class="form-select" id="statsSemester">
+                            <option value="">Todos</option>
+                            <option value="1">Primer Cuatrimestre</option>
+                            <option value="2">Segundo Cuatrimestre</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="button" class="btn btn-primary" id="loadStats">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Cargar Estadísticas
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="statsContent">
+                    <div class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando estadísticas...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
