@@ -1,0 +1,291 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-gear me-3"></i>Configuración Inicial
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Configura los turnos, cursos y divisiones de tu escuela
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de Configuración -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-school me-2"></i>Configuración de la Escuela
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="initialConfigForm">
+                    <!-- Información básica -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-info-circle me-2"></i>Información Básica
+                            </h6>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="schoolName" class="form-label">Nombre de la Escuela</label>
+                                <input type="text" class="form-control" id="schoolName" name="schoolName" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="schoolType" class="form-label">Tipo de Escuela</label>
+                                <select class="form-select" id="schoolType" name="schoolType" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="primaria">Primaria (6 años - 1ro a 6to grado)</option>
+                                    <option value="secundaria">Secundaria (6 años - 1ro a 6to año)</option>
+                                    <option value="tecnica">Técnica (7 años - 1ro a 7mo año)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Turnos -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-clock me-2"></i>Turnos de la Escuela
+                            </h6>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="turnMorning" name="turns" value="mañana">
+                                <label class="form-check-label" for="turnMorning">
+                                    <i class="bi bi-sun me-2"></i>Mañana
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="turnAfternoon" name="turns" value="tarde">
+                                <label class="form-check-label" for="turnAfternoon">
+                                    <i class="bi bi-sunset me-2"></i>Tarde
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="turnEvening" name="turns" value="vespertino">
+                                <label class="form-check-label" for="turnEvening">
+                                    <i class="bi bi-moon me-2"></i>Vespertino
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Configuración de cursos -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-book me-2"></i>Configuración de Cursos
+                            </h6>
+                            <div class="alert alert-info">
+                                <i class="bi bi-lightbulb me-2"></i>
+                                <strong>Tip:</strong> Los cursos se crearán automáticamente según los turnos seleccionados. 
+                                Puedes personalizar las divisiones después.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vista previa de cursos -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-eye me-2"></i>Vista Previa de Cursos
+                            </h6>
+                            <div id="coursesPreview" class="border rounded p-3 bg-light">
+                                <div class="text-center text-muted">
+                                    <i class="bi bi-info-circle fs-1"></i>
+                                    <p class="mt-2">Selecciona los turnos para ver los cursos que se crearán</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="d-flex justify-content-between">
+                        <a href="/auth/login" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Volver al Login
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Configurar Escuela
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información -->
+    <div class="col-lg-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Información
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>Esta configuración te permitirá:</p>
+                <ul class="list-unstyled">
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Crear cursos automáticamente</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Organizar estudiantes por turnos</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Gestionar divisiones fácilmente</li>
+                    <li><i class="bi bi-check-circle text-success me-2"></i>Importar estudiantes masivamente</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('initialConfigForm');
+    const coursesPreview = document.getElementById('coursesPreview');
+    const turnCheckboxes = document.querySelectorAll('input[name="turns"]');
+    const schoolTypeSelect = document.getElementById('schoolType');
+    
+    // Actualizar vista previa cuando cambien los turnos
+    turnCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updatePreview);
+    });
+    
+    schoolTypeSelect.addEventListener('change', updatePreview);
+    
+    function updatePreview() {
+        const selectedTurns = Array.from(turnCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        
+        const schoolType = schoolTypeSelect.value;
+        
+        if (selectedTurns.length === 0 || !schoolType) {
+            coursesPreview.innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="bi bi-info-circle fs-1"></i>
+                    <p class="mt-2">Selecciona el tipo de escuela y los turnos para ver los cursos que se crearán</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Determinar años según el tipo de escuela
+        let years = [];
+        let yearLabel = '';
+        
+        if (schoolType === 'primaria') {
+            years = [1, 2, 3, 4, 5, 6];
+            yearLabel = '° Grado';
+        } else if (schoolType === 'secundaria') {
+            years = [1, 2, 3, 4, 5, 6];
+            yearLabel = '° Año';
+        } else if (schoolType === 'tecnica') {
+            years = [1, 2, 3, 4, 5, 6, 7];
+            yearLabel = '° Año';
+        }
+        
+        let previewHtml = '<div class="row">';
+        
+        selectedTurns.forEach(turn => {
+            previewHtml += `<div class="col-md-4 mb-3">`;
+            previewHtml += `<h6 class="text-primary">${turn.charAt(0).toUpperCase() + turn.slice(1)}</h6>`;
+            previewHtml += '<div class="list-group list-group-flush">';
+            
+            years.forEach(year => {
+                let cycleLabel = '';
+                if (schoolType === 'secundaria' || schoolType === 'tecnica') {
+                    if (year <= 3) {
+                        cycleLabel = ' <small class="text-muted">(Básico)</small>';
+                    } else {
+                        cycleLabel = ' <small class="text-muted">(Superior)</small>';
+                    }
+                }
+                previewHtml += `<div class="list-group-item py-2">${year}${yearLabel}${cycleLabel}</div>`;
+            });
+            
+            previewHtml += '</div></div>';
+        });
+        
+        previewHtml += '</div>';
+        coursesPreview.innerHTML = previewHtml;
+    }
+    
+    // Manejar envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const selectedTurns = Array.from(turnCheckboxes)
+            .filter(cb => cb.checked)
+            .map(cb => cb.value);
+        
+        if (selectedTurns.length === 0) {
+            showAlert('Por favor selecciona al menos un turno', 'warning');
+            return;
+        }
+        
+        const configData = {
+            schoolName: formData.get('schoolName'),
+            schoolType: formData.get('schoolType'),
+            turns: selectedTurns
+        };
+        
+        try {
+            const response = await fetch('/auth/initial-config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(configData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert('Escuela configurada correctamente. Redirigiendo...', 'success');
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 2000);
+            } else {
+                showAlert('Error al configurar la escuela: ' + result.error, 'danger');
+            }
+        } catch (error) {
+            showAlert('Error al configurar la escuela: ' + error.message, 'danger');
+        }
+    });
+    
+    function showAlert(message, type) {
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.container-fluid');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-triangle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+});
+</script>
+
+<style>
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>

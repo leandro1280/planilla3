@@ -1,0 +1,235 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-person-plus me-3"></i>Agregar Estudiante
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Agrega un estudiante manualmente al sistema
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de Agregar Estudiante -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-person-plus me-2"></i>Datos del Estudiante
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form id="addStudentForm">
+                    <div class="row">
+                        <!-- Información Personal -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Información Personal</h6>
+                            
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">Nombre <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Apellido <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dni" class="form-label">DNI</label>
+                                <input type="text" class="form-control" id="dni" name="dni" placeholder="12345678">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" class="form-control" id="birthDate" name="birthDate">
+                            </div>
+                        </div>
+                        
+                        <!-- Información Académica -->
+                        <div class="col-md-6">
+                            <h6 class="text-primary mb-3">Información Académica</h6>
+                            
+                            <div class="mb-3">
+                                <label for="courseId" class="form-label">Curso <span class="text-danger">*</span></label>
+                                <select class="form-select" id="courseId" name="courseId" required>
+                                    <option value="">Seleccionar curso...</option>
+                                    <!-- Los cursos se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="specialization" class="form-label">Especialización</label>
+                                <select class="form-select" id="specialization" name="specialization">
+                                    <option value="">Sin especialización</option>
+                                    <!-- Las especializaciones se cargarán dinámicamente -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="studentNumber" class="form-label">Número de Estudiante</label>
+                                <input type="text" class="form-control" id="studentNumber" name="studentNumber" placeholder="Opcional">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="status" class="form-label">Estado</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="active" selected>Activo</option>
+                                    <option value="inactive">Inactivo</option>
+                                    <option value="graduated">Egresado</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Información de Contacto -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">Información de Contacto</h6>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="estudiante@email.com">
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="1234567890">
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Dirección</label>
+                                <textarea class="form-control" id="address" name="address" rows="2" placeholder="Dirección completa"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botones -->
+                    <div class="row mt-4">
+                        <div class="col-12 text-end">
+                            <a href="/students" class="btn btn-secondary me-2">
+                                <i class="bi bi-arrow-left me-2"></i>Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-circle me-2"></i>Agregar Estudiante
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('addStudentForm');
+    
+    // Cargar cursos disponibles
+    loadCourses();
+    
+    // Manejar envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const studentData = {
+            first_name: formData.get('firstName'),
+            last_name: formData.get('lastName'),
+            dni: formData.get('dni'),
+            birth_date: formData.get('birthDate'),
+            course_id: formData.get('courseId'),
+            specialization: formData.get('specialization'),
+            student_number: formData.get('studentNumber'),
+            status: formData.get('status'),
+            email: formData.get('email'),
+            phone: formData.get('phone'),
+            address: formData.get('address'),
+            is_active: formData.get('status') === 'active'
+        };
+        
+        try {
+            const response = await fetch('/students/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(studentData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert('Estudiante agregado correctamente', 'success');
+                setTimeout(() => {
+                    window.location.href = '/students';
+                }, 2000);
+            } else {
+                showAlert('Error al agregar estudiante: ' + result.error, 'danger');
+            }
+        } catch (error) {
+            showAlert('Error al agregar estudiante: ' + error.message, 'danger');
+        }
+    });
+    
+    async function loadCourses() {
+        try {
+            const response = await fetch('/courses/api', {
+                credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                const courseSelect = document.getElementById('courseId');
+                courseSelect.innerHTML = '<option value="">Seleccionar curso...</option>';
+                
+                result.courses.forEach(course => {
+                    const option = document.createElement('option');
+                    option.value = course.id;
+                    option.textContent = `${course.year}° ${course.division} - ${course.shift}`;
+                    courseSelect.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error cargando cursos:', error);
+        }
+    }
+    
+    function showAlert(message, type) {
+        // Remover alertas existentes
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.card-body');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+});
+</script>
+
+<style>
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>

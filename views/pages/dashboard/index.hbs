@@ -4,14 +4,14 @@
         <div class="col-lg-8">
             <div class="hero-content">
                 <h1 class="display-4 fw-bold text-gradient mb-3">
-                    <i class="bi bi-speedometer2 me-3"></i>Dashboard Escolar
+                    <i class="bi bi-speedometer2 me-3"></i>EduTrack Pro Dashboard
                 </h1>
                 <p class="lead text-muted mb-4">
                     Bienvenido al sistema de gestión escolar. Monitorea el rendimiento académico y gestiona toda la información de tu institución educativa.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <div class="badge bg-primary fs-6 px-3 py-2">
-                        <i class="bi bi-building me-2"></i>{{#if school}}{{school.name}}{{else}}Selecciona una escuela{{/if}}
+                        <i class="bi bi-building me-2"></i>{{#if school}}{{school.name}} <small class="text-muted">({{school.school_type}})</small>{{else}}Selecciona una escuela{{/if}}
                     </div>
                     <div class="badge bg-success fs-6 px-3 py-2">
                         <i class="bi bi-calendar3 me-2"></i>Año Académico {{currentYear}}
@@ -47,9 +47,9 @@
             </div>
             <div class="card-body">
                 <p class="mb-3">Para acceder al dashboard, primero debes seleccionar una escuela:</p>
-                <button type="button" class="btn btn-warning" id="selectSchoolBtn">
+                <a href="/schools/select" class="btn btn-warning">
                     <i class="bi bi-building me-2"></i>Seleccionar Escuela
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -68,13 +68,34 @@
             </div>
             <div class="card-body">
                 <div class="row g-3">
-                    <div class="col-md-3">
-                        <a href="/students" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
-                            <i class="bi bi-people-fill fs-1 mb-2"></i>
-                            <span class="fw-bold">Gestionar Estudiantes</span>
-                            <small class="text-muted">Ver y administrar estudiantes</small>
-                        </a>
-                    </div>
+                <div class="col-md-3">
+                    <a href="/auth/initial-config" class="btn btn-outline-warning w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="bi bi-gear fs-1 mb-2"></i>
+                        <span class="fw-bold">Configurar Escuela</span>
+                        <small class="text-muted">Tipo, turnos y cursos</small>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/files/upload" class="btn btn-outline-primary w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="bi bi-cloud-upload fs-1 mb-2"></i>
+                        <span class="fw-bold">Cargar Archivos</span>
+                        <small class="text-muted">Importar datos de Excel, CSV, PDF</small>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/students" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="bi bi-people-fill fs-1 mb-2"></i>
+                        <span class="fw-bold">Ver Estudiantes</span>
+                        <small class="text-muted">Gestionar lista de estudiantes</small>
+                    </a>
+                </div>
+                <div class="col-md-3">
+                    <a href="/courses/manage" class="btn btn-outline-info w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
+                        <i class="bi bi-book fs-1 mb-2"></i>
+                        <span class="fw-bold">Gestionar Cursos</span>
+                        <small class="text-muted">Crear cursos flexibles</small>
+                    </a>
+                </div>
                     <div class="col-md-3">
                         <a href="/grades" class="btn btn-outline-success w-100 h-100 d-flex flex-column align-items-center justify-content-center py-4">
                             <i class="bi bi-journal-text fs-1 mb-2"></i>

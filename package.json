@@ -22,6 +22,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.75.0",
     "bcryptjs": "^2.4.3",
+    "cloudinary": "^2.7.0",
     "connect-redis": "^7.1.0",
     "cors": "^2.8.5",
     "csv-parser": "^3.0.0",
@@ -53,5 +54,3 @@
     "node": ">=18.0.0"
   }
 }
-
-

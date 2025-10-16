@@ -1,4 +1,4 @@
-const { supabase } = require('../config/database');
+const { supabase, supabaseAdmin } = require('../config/database');
 
 class School {
   constructor(data) {
@@ -36,7 +36,7 @@ class School {
   // Buscar escuela por ID
   static async findById(id) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('schools')
         .select('*')
         .eq('id', id)
@@ -58,7 +58,7 @@ class School {
   // Buscar escuela por código
   static async findByCode(code) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('schools')
         .select('*')
         .eq('code', code)
@@ -80,7 +80,7 @@ class School {
   // Obtener todas las escuelas
   static async findAll(filters = {}) {
     try {
-      let query = supabase
+      let query = supabaseAdmin
         .from('schools')
         .select('*')
         .order('name');
@@ -110,7 +110,7 @@ class School {
   // Obtener escuelas de un usuario
   static async findByUserId(userId) {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from('user_schools')
         .select(`
           *,
@@ -123,7 +123,7 @@ class School {
 
       return data.map(item => ({
         ...new School(item.schools),
-        role_in_school: item.role_in_school
+        role_in_school: item.role
       }));
     } catch (error) {
       throw new Error(`Error al obtener escuelas del usuario: ${error.message}`);
@@ -232,7 +232,7 @@ class School {
 
       return data.map(item => ({
         ...item.users,
-        role_in_school: item.role_in_school
+        role_in_school: item.role
       }));
     } catch (error) {
       throw new Error(`Error al obtener usuarios: ${error.message}`);

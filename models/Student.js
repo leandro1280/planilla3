@@ -349,6 +349,35 @@ class Student {
       throw new Error(`Error al importar estudiantes: ${error.message}`);
     }
   }
+
+  // Obtener estudiantes por escuela
+  static async findBySchoolId(schoolId) {
+    try {
+      const { data, error } = await supabase
+        .from('students')
+        .select(`
+          *,
+          courses (
+            id,
+            academic_year,
+            year,
+            division,
+            shift
+          )
+        `)
+        .eq('school_id', schoolId)
+        .order('last_name', { ascending: true });
+
+      if (error) throw error;
+
+      return data.map(student => ({
+        ...student,
+        course_name: student.courses ? `${student.courses.year}° ${student.courses.division} - ${student.courses.shift}` : 'Sin curso'
+      }));
+    } catch (error) {
+      throw new Error(`Error al obtener estudiantes de la escuela: ${error.message}`);
+    }
+  }
 }
 
 module.exports = Student;

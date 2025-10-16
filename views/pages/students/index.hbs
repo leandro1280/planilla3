@@ -1,0 +1,418 @@
+{{> main-content}}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3 mb-0">
+                    <i class="bi bi-people-fill text-primary me-2"></i>
+                    Estudiantes
+                </h1>
+                <div>
+                    <a href="/files/upload" class="btn btn-primary me-2">
+                        <i class="bi bi-plus-circle me-1"></i>
+                        Cargar Estudiantes
+                    </a>
+                    <a href="/students/add" class="btn btn-success me-2">
+                        <i class="bi bi-person-plus me-2"></i>Agregar Estudiante
+                    </a>
+                    <a href="/students/bulk-import" class="btn btn-info">
+                        <i class="bi bi-clipboard-data me-2"></i>Importación Masiva
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="searchInput" class="form-label">Buscar estudiante</label>
+                            <input type="text" class="form-control" id="searchInput" placeholder="Nombre, apellido o DNI...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="courseFilter" class="form-label">Curso</label>
+                            <select class="form-select" id="courseFilter">
+                                <option value="">Todos los cursos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="statusFilter" class="form-label">Estado</label>
+                            <select class="form-select" id="statusFilter">
+                                <option value="">Todos</option>
+                                <option value="active">Activos</option>
+                                <option value="inactive">Inactivos</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                                <i class="bi bi-x-circle me-1"></i>
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Total Estudiantes</h6>
+                                    <h3 class="mb-0" id="totalStudents">0</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-people-fill fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Activos</h6>
+                                    <h3 class="mb-0" id="activeStudents">0</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-person-check-fill fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Cursos</h6>
+                                    <h3 class="mb-0" id="totalCourses">0</h3>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-book-fill fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6 class="card-title">Última Carga</h6>
+                                    <small id="lastUpload">-</small>
+                                </div>
+                                <div class="align-self-center">
+                                    <i class="bi bi-clock-fill fs-1"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de estudiantes -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table me-2"></i>
+                        Lista de Estudiantes
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="studentsTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>DNI</th>
+                                    <th>Apellido</th>
+                                    <th>Nombre</th>
+                                    <th>Email</th>
+                                    <th>Teléfono</th>
+                                    <th>Curso</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="studentsTableBody">
+                                <tr>
+                                    <td colspan="9" class="text-center py-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Cargando...</span>
+                                        </div>
+                                        <p class="mt-2 text-muted">Cargando estudiantes...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paginación -->
+            <nav aria-label="Paginación de estudiantes" class="mt-4">
+                <ul class="pagination justify-content-center" id="pagination">
+                    <!-- Se llena dinámicamente -->
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    let students = [];
+    let filteredStudents = [];
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    // Cargar estudiantes al iniciar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStudents();
+    });
+
+    // Función para cargar estudiantes
+    async function loadStudents() {
+        try {
+            const response = await fetch('/students/api', {
+                method: 'GET',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                
+                // Si el usuario necesita seleccionar una escuela
+                if (errorData.action === 'select_school') {
+                    showAlert('Debes seleccionar una escuela primero. Redirigiendo...', 'warning');
+                    setTimeout(() => {
+                        window.location.href = errorData.redirectTo;
+                    }, 2000);
+                    return;
+                }
+                
+                throw new Error(errorData.error || 'Error al cargar estudiantes');
+            }
+
+            const data = await response.json();
+            students = data.students || [];
+            filteredStudents = [...students];
+
+            updateStatistics();
+            renderStudents();
+            setupFilters();
+        } catch (error) {
+            console.error('Error:', error);
+            showError('Error al cargar estudiantes: ' + error.message);
+        }
+    }
+
+    // Actualizar estadísticas
+    function updateStatistics() {
+        document.getElementById('totalStudents').textContent = students.length;
+        document.getElementById('activeStudents').textContent = students.filter(s => s.is_active).length;
+        
+        const courses = [...new Set(students.map(s => s.course_name).filter(Boolean))];
+        document.getElementById('totalCourses').textContent = courses.length;
+        
+        // Última carga (simulado por ahora)
+        document.getElementById('lastUpload').textContent = 'Hoy';
+    }
+
+    // Renderizar estudiantes en la tabla
+    function renderStudents() {
+        const tbody = document.getElementById('studentsTableBody');
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const pageStudents = filteredStudents.slice(startIndex, endIndex);
+
+        if (pageStudents.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" class="text-center py-4">
+                        <i class="bi bi-inbox fs-1 text-muted"></i>
+                        <p class="mt-2 text-muted">No se encontraron estudiantes</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = pageStudents.map((student, index) => `
+            <tr>
+                <td>${startIndex + index + 1}</td>
+                <td><code>${student.dni || '-'}</code></td>
+                <td>${student.last_name || '-'}</td>
+                <td>${student.first_name || '-'}</td>
+                <td>${student.email || '-'}</td>
+                <td>${student.phone || '-'}</td>
+                <td>
+                    <span class="badge bg-secondary">${student.course_name || 'Sin curso'}</span>
+                </td>
+                <td>
+                    <span class="badge ${student.is_active ? 'bg-success' : 'bg-danger'}">
+                        ${student.is_active ? 'Activo' : 'Inactivo'}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="viewStudent('${student.id}')">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="editStudent('${student.id}')">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+
+        renderPagination();
+    }
+
+    // Configurar filtros
+    function setupFilters() {
+        const searchInput = document.getElementById('searchInput');
+        const courseFilter = document.getElementById('courseFilter');
+        const statusFilter = document.getElementById('statusFilter');
+
+        // Llenar opciones de cursos
+        const courses = [...new Set(students.map(s => s.course_name).filter(Boolean))];
+        courseFilter.innerHTML = '<option value="">Todos los cursos</option>' +
+            courses.map(course => `<option value="${course}">${course}</option>`).join('');
+
+        // Event listeners
+        searchInput.addEventListener('input', applyFilters);
+        courseFilter.addEventListener('change', applyFilters);
+        statusFilter.addEventListener('change', applyFilters);
+    }
+
+    // Aplicar filtros
+    function applyFilters() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const courseFilter = document.getElementById('courseFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+
+        filteredStudents = students.filter(student => {
+            const matchesSearch = !searchTerm || 
+                (student.first_name && student.first_name.toLowerCase().includes(searchTerm)) ||
+                (student.last_name && student.last_name.toLowerCase().includes(searchTerm)) ||
+                (student.dni && student.dni.includes(searchTerm));
+
+            const matchesCourse = !courseFilter || student.course_name === courseFilter;
+            const matchesStatus = !statusFilter || 
+                (statusFilter === 'active' && student.is_active) ||
+                (statusFilter === 'inactive' && !student.is_active);
+
+            return matchesSearch && matchesCourse && matchesStatus;
+        });
+
+        currentPage = 1;
+        renderStudents();
+    }
+
+    // Limpiar filtros
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('courseFilter').value = '';
+        document.getElementById('statusFilter').value = '';
+        applyFilters();
+    }
+
+    // Renderizar paginación
+    function renderPagination() {
+        const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+        const pagination = document.getElementById('pagination');
+
+        if (totalPages <= 1) {
+            pagination.innerHTML = '';
+            return;
+        }
+
+        let paginationHTML = '';
+
+        // Botón anterior
+        paginationHTML += `
+            <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage - 1})">Anterior</a>
+            </li>
+        `;
+
+        // Páginas
+        for (let i = 1; i <= totalPages; i++) {
+            if (i === 1 || i === totalPages || (i >= currentPage - 2 && i <= currentPage + 2)) {
+                paginationHTML += `
+                    <li class="page-item ${i === currentPage ? 'active' : ''}">
+                        <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                    </li>
+                `;
+            } else if (i === currentPage - 3 || i === currentPage + 3) {
+                paginationHTML += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+        }
+
+        // Botón siguiente
+        paginationHTML += `
+            <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                <a class="page-link" href="#" onclick="changePage(${currentPage + 1})">Siguiente</a>
+            </li>
+        `;
+
+        pagination.innerHTML = paginationHTML;
+    }
+
+    // Cambiar página
+    function changePage(page) {
+        const totalPages = Math.ceil(filteredStudents.length / itemsPerPage);
+        if (page >= 1 && page <= totalPages) {
+            currentPage = page;
+            renderStudents();
+        }
+    }
+
+    // Ver estudiante
+    function viewStudent(studentId) {
+        alert('Ver estudiante: ' + studentId);
+    }
+
+    // Editar estudiante
+    function editStudent(studentId) {
+        alert('Editar estudiante: ' + studentId);
+    }
+
+    // Mostrar error
+    function showError(message) {
+        const tbody = document.getElementById('studentsTableBody');
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="9" class="text-center py-4">
+                    <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+                    <p class="mt-2 text-danger">${message}</p>
+                </td>
+            </tr>
+        `;
+    }
+
+    // Mostrar alerta
+    function showAlert(message, type = 'info') {
+        // Remover alertas existentes
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.container-fluid');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+</script>

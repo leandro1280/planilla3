@@ -1,0 +1,394 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-plus-circle me-3"></i>Crear Nueva Escuela
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Configura una nueva institución educativa en EduTrack Pro
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de Creación -->
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-building me-2"></i>Información de la Escuela
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <form id="createSchoolForm">
+                    <!-- Información Básica -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-info-circle me-2"></i>Información Básica
+                            </h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Nombre de la Escuela *</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div class="form-text">Ej: Escuela Técnica N° 1</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="code" class="form-label">Código de Identificación <span class="text-muted">(Opcional)</span></label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="code" name="code" placeholder="Ej: ESS_54, ETP_123, EPR_001">
+                                <button class="btn btn-outline-secondary" type="button" id="generateCodeBtn" title="Generar código automático">
+                                    <i class="bi bi-magic"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Identificador único para la escuela (ej: ESS_54 = Escuela Secundaria 54)
+                            </div>
+                            <div id="codeStatus" class="form-text"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="city" class="form-label">Ciudad *</label>
+                            <input type="text" class="form-control" id="city" name="city" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="province" class="form-label">Provincia *</label>
+                            <select class="form-select" id="province" name="province" required>
+                                <option value="">Seleccionar provincia</option>
+                                <option value="Buenos Aires">Buenos Aires</option>
+                                <option value="CABA">Ciudad Autónoma de Buenos Aires</option>
+                                <option value="Catamarca">Catamarca</option>
+                                <option value="Chaco">Chaco</option>
+                                <option value="Chubut">Chubut</option>
+                                <option value="Córdoba">Córdoba</option>
+                                <option value="Corrientes">Corrientes</option>
+                                <option value="Entre Ríos">Entre Ríos</option>
+                                <option value="Formosa">Formosa</option>
+                                <option value="Jujuy">Jujuy</option>
+                                <option value="La Pampa">La Pampa</option>
+                                <option value="La Rioja">La Rioja</option>
+                                <option value="Mendoza">Mendoza</option>
+                                <option value="Misiones">Misiones</option>
+                                <option value="Neuquén">Neuquén</option>
+                                <option value="Río Negro">Río Negro</option>
+                                <option value="Salta">Salta</option>
+                                <option value="San Juan">San Juan</option>
+                                <option value="San Luis">San Luis</option>
+                                <option value="Santa Cruz">Santa Cruz</option>
+                                <option value="Santa Fe">Santa Fe</option>
+                                <option value="Santiago del Estero">Santiago del Estero</option>
+                                <option value="Tierra del Fuego">Tierra del Fuego</option>
+                                <option value="Tucumán">Tucumán</option>
+                            </select>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label for="address" class="form-label">Dirección</label>
+                            <input type="text" class="form-control" id="address" name="address">
+                        </div>
+                    </div>
+
+                    <!-- Tipo de Escuela -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-gear me-2"></i>Configuración Académica
+                            </h6>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="school_type" class="form-label">Tipo de Escuela *</label>
+                            <select class="form-select" id="school_type" name="school_type" required>
+                                <option value="">Seleccionar tipo</option>
+                                <option value="primaria">Escuela Primaria</option>
+                                <option value="secundaria_comun">Secundaria Común</option>
+                                <option value="tecnica">Secundaria Técnica</option>
+                                <option value="agrotecnica">Agrotécnica</option>
+                                <option value="artistica">Artística</option>
+                                <option value="adultos">Educación de Adultos</option>
+                            </select>
+                            <div class="form-text">El tipo determina la configuración académica</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="evaluation_system" class="form-label">Sistema de Evaluación *</label>
+                            <select class="form-select" id="evaluation_system" name="evaluation_system" required>
+                                <option value="">Seleccionar sistema</option>
+                                <option value="trimestral">Trimestral</option>
+                                <option value="cuatrimestral">Cuatrimestral</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="instances_per_period" class="form-label">Instancias por Período *</label>
+                            <input type="number" class="form-control" id="instances_per_period" name="instances_per_period" min="1" max="10" required>
+                            <div class="form-text">Número de evaluaciones por período</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="max_students_per_course" class="form-label">Máx. Estudiantes por Curso</label>
+                            <input type="number" class="form-control" id="max_students_per_course" name="max_students_per_course" min="1" max="50">
+                            <div class="form-text">Límite opcional de estudiantes</div>
+                        </div>
+                    </div>
+
+                    <!-- Opciones Adicionales -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h6 class="text-primary mb-3">
+                                <i class="bi bi-check2-square me-2"></i>Opciones Adicionales
+                            </h6>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="has_pre_reports" name="has_pre_reports">
+                                <label class="form-check-label" for="has_pre_reports">
+                                    Pre-informes
+                                </label>
+                                <div class="form-text">Evaluaciones sin nota numérica</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="has_intensification" name="has_intensification">
+                                <label class="form-check-label" for="has_intensification">
+                                    Períodos de Intensificación
+                                </label>
+                                <div class="form-text">Recuperación de materias</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="auto_configure_subjects" name="auto_configure_subjects" checked>
+                                <label class="form-check-label" for="auto_configure_subjects">
+                                    Configurar materias automáticamente
+                                </label>
+                                <div class="form-text">Cargar materias básicas del tipo de escuela</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    Activa
+                                </label>
+                                <div class="form-text">Escuela habilitada</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex gap-3 justify-content-end">
+                                <a href="/schools" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Cancelar
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle me-2"></i>Crear Escuela
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('createSchoolForm');
+    const schoolTypeSelect = document.getElementById('school_type');
+    const evaluationSystemSelect = document.getElementById('evaluation_system');
+    const instancesInput = document.getElementById('instances_per_period');
+    const preReportsCheck = document.getElementById('has_pre_reports');
+    const intensificationCheck = document.getElementById('has_intensification');
+
+    // Configuración automática basada en el tipo de escuela
+    schoolTypeSelect.addEventListener('change', function() {
+        const schoolType = this.value;
+        
+        // Configurar sistema de evaluación por defecto
+        if (schoolType === 'primaria') {
+            evaluationSystemSelect.value = 'trimestral';
+            instancesInput.value = '3';
+            preReportsCheck.checked = false;
+            intensificationCheck.checked = false;
+        } else if (schoolType === 'adultos') {
+            evaluationSystemSelect.value = 'trimestral';
+            instancesInput.value = '3';
+            preReportsCheck.checked = false;
+            intensificationCheck.checked = true;
+        } else {
+            evaluationSystemSelect.value = 'cuatrimestral';
+            instancesInput.value = '4';
+            preReportsCheck.checked = true;
+            intensificationCheck.checked = true;
+        }
+        
+        // Generar código automático si no hay uno
+        if (!codeInput.value) {
+            generateCode();
+        }
+    });
+
+    // Generar código automático
+    function generateCode() {
+        const schoolType = schoolTypeSelect.value;
+        const schoolName = nameInput.value;
+        
+        if (schoolType && schoolName) {
+            const typePrefix = getSchoolTypePrefix(schoolType);
+            const schoolNumber = extractSchoolNumber(schoolName);
+            const baseCode = `${typePrefix}_${schoolNumber}`;
+            codeInput.value = baseCode;
+            checkCodeAvailability(baseCode);
+        } else {
+            codeInput.value = '';
+            document.getElementById('codeStatus').innerHTML = '';
+        }
+    }
+
+    // Obtener prefijo del tipo de escuela
+    function getSchoolTypePrefix(schoolType) {
+        const prefixes = {
+            'primaria': 'EPR',      // Escuela Primaria
+            'secundaria_comun': 'ESS', // Escuela Secundaria
+            'tecnica': 'ETP',       // Escuela Técnica
+            'agrotecnica': 'EAT',   // Escuela Agrotécnica
+            'artistica': 'EART',    // Escuela Artística
+            'adultos': 'EAD'        // Escuela de Adultos
+        };
+        return prefixes[schoolType] || 'ESC';
+    }
+
+    // Extraer número de la escuela del nombre
+    function extractSchoolNumber(name) {
+        // Buscar patrones como "N° 54", "Nº 123", "54", "123"
+        const numberMatch = name.match(/(?:N[°º]\s*)?(\d+)/i);
+        if (numberMatch) {
+            return numberMatch[1].padStart(3, '0'); // Rellenar con ceros: 54 -> 054
+        }
+        
+        // Si no hay número, usar las primeras letras del nombre
+        const cleanName = name.replace(/[^A-Z0-9]/gi, '').substring(0, 6);
+        return cleanName || '001';
+    }
+
+    // Verificar disponibilidad del código
+    async function checkCodeAvailability(code) {
+        if (!code) return;
+        
+        const statusDiv = document.getElementById('codeStatus');
+        
+        try {
+            const response = await fetch(`/api/schools/check-code?code=${encodeURIComponent(code)}`, {
+                method: 'GET',
+                credentials: 'include',
+                mode: 'cors'
+            });
+            
+            const data = await response.json();
+            
+            if (data.available) {
+                statusDiv.innerHTML = '<i class="bi bi-check-circle text-success"></i> Código disponible';
+                statusDiv.className = 'form-text text-success';
+            } else {
+                statusDiv.innerHTML = '<i class="bi bi-exclamation-triangle text-warning"></i> Código en uso, se generará uno automático';
+                statusDiv.className = 'form-text text-warning';
+            }
+        } catch (error) {
+            statusDiv.innerHTML = '<i class="bi bi-question-circle text-muted"></i> No se pudo verificar';
+            statusDiv.className = 'form-text text-muted';
+        }
+    }
+
+    // Event listeners
+    const nameInput = document.getElementById('name');
+    const codeInput = document.getElementById('code');
+    const generateCodeBtn = document.getElementById('generateCodeBtn');
+
+    nameInput.addEventListener('input', function() {
+        if (schoolTypeSelect.value && !codeInput.value) {
+            generateCode();
+        }
+    });
+
+    codeInput.addEventListener('input', function() {
+        checkCodeAvailability(this.value);
+    });
+
+    generateCodeBtn.addEventListener('click', generateCode);
+
+    // Manejar envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        // Mostrar loading
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando...';
+        submitBtn.disabled = true;
+        
+        try {
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Convertir checkboxes a boolean
+            data.has_pre_reports = formData.has('has_pre_reports');
+            data.has_intensification = formData.has('has_intensification');
+            data.auto_configure_subjects = formData.has('auto_configure_subjects');
+            data.is_active = formData.has('is_active');
+            
+            const response = await fetch('/schools', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+                credentials: 'include',
+                mode: 'cors'
+            });
+            
+            const result = await response.json();
+            
+            if (response.ok) {
+                showAlert('Escuela creada exitosamente. Redirigiendo...', 'success');
+                setTimeout(() => {
+                    // Redirigir a la página de éxito con los datos de la escuela
+                    window.location.href = `/schools/success?name=${encodeURIComponent(result.school.name)}&code=${encodeURIComponent(result.school.code)}&city=${encodeURIComponent(result.school.city)}&province=${encodeURIComponent(result.school.province)}&type=${encodeURIComponent(result.school.school_type)}&address=${encodeURIComponent(result.school.address || '')}`;
+                }, 1500);
+            } else {
+                showAlert(result.error || 'Error al crear la escuela', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                showAlert('Error de conexión. Verifica que el servidor esté funcionando.', 'danger');
+            } else {
+                showAlert('Error inesperado. Intenta de nuevo.', 'danger');
+            }
+        } finally {
+            // Restaurar botón
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }
+    });
+    
+    function showAlert(message, type) {
+        // Remover alertas existentes
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.card-body');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+});
+</script>

@@ -1,0 +1,423 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-book me-3"></i>Gestionar Cursos
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Administra cursos, divisiones y especializaciones de tu escuela
+                </p>
+            </div>
+        </div>
+        <div class="col-lg-4 text-end">
+            <button class="btn btn-primary btn-lg" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+                <i class="bi bi-plus-circle me-2"></i>Nuevo Curso
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Estadísticas -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0" id="totalCourses">0</h4>
+                        <p class="mb-0">Cursos Totales</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-book fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0" id="totalStudents">0</h4>
+                        <p class="mb-0">Estudiantes</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-people fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0" id="totalSpecializations">0</h4>
+                        <p class="mb-0">Especializaciones</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-award fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <h4 class="mb-0" id="activeCourses">0</h4>
+                        <p class="mb-0">Cursos Activos</p>
+                    </div>
+                    <div class="align-self-center">
+                        <i class="bi bi-check-circle fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Cursos -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-ul me-2"></i>Cursos de la Escuela
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Curso</th>
+                                <th>División</th>
+                                <th>Turno</th>
+                                <th>Año Académico</th>
+                                <th>Estudiantes</th>
+                                <th>Especialización</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coursesTableBody">
+                            <tr>
+                                <td colspan="8" class="text-center py-4">
+                                    <i class="bi bi-hourglass-split fs-1 text-muted"></i>
+                                    <p class="mt-2 text-muted">Cargando cursos...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Agregar/Editar Curso -->
+<div class="modal fade" id="addCourseModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Agregar Nuevo Curso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="courseForm">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="year" class="form-label">Año <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="year" name="year" placeholder="1, 2, 3, 1ro, 2do, etc." required>
+                                <div class="form-text">Ejemplo: 1, 2, 3, 1ro, 2do, 3ro, etc.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="division" class="form-label">División <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="division" name="division" placeholder="A, B, C, 1ra, 2da, etc." required>
+                                <div class="form-text">Ejemplo: A, B, C, 1ra, 2da, 3ra, etc.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="shift" class="form-label">Turno <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="shift" name="shift" placeholder="Mañana, Tarde, Noche, etc." required>
+                                <div class="form-text">Ejemplo: Mañana, Tarde, Noche, Vespertino, etc.</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="academicYear" class="form-label">Año Académico <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" id="academicYear" name="academicYear" min="2020" max="2030" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="cycle" class="form-label">Ciclo</label>
+                                <select class="form-select" id="cycle" name="cycle">
+                                    <option value="basico">Básico</option>
+                                    <option value="superior">Superior</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="specialization" class="form-label">Especialización</label>
+                        <select class="form-select" id="specialization" name="specialization">
+                            <option value="">Sin especialización</option>
+                            <option value="Bachillerato">Bachillerato</option>
+                            <option value="Comercial">Comercial</option>
+                            <option value="Técnico">Técnico</option>
+                            <option value="Arte">Arte</option>
+                            <option value="Ciencias Naturales">Ciencias Naturales</option>
+                            <option value="Ciencias Sociales">Ciencias Sociales</option>
+                            <option value="Economía">Economía</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="capacity" class="form-label">Capacidad Máxima</label>
+                        <input type="number" class="form-control" id="capacity" name="capacity" min="1" max="50" placeholder="30">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="description" name="description" rows="3" placeholder="Descripción opcional del curso"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveCourseBtn">
+                    <i class="bi bi-check-circle me-2"></i>Guardar Curso
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const coursesTableBody = document.getElementById('coursesTableBody');
+    const addCourseModal = new bootstrap.Modal(document.getElementById('addCourseModal'));
+    const courseForm = document.getElementById('courseForm');
+    const saveCourseBtn = document.getElementById('saveCourseBtn');
+    
+    let courses = [];
+    let editingCourseId = null;
+    
+    // Cargar cursos al inicializar
+    loadCourses();
+    
+    // Manejar apertura del modal
+    document.querySelector('[data-bs-target="#addCourseModal"]').addEventListener('click', () => {
+        editingCourseId = null;
+        document.getElementById('modalTitle').textContent = 'Agregar Nuevo Curso';
+        courseForm.reset();
+    });
+    
+    // Manejar guardado del curso
+    saveCourseBtn.addEventListener('click', async () => {
+        const formData = new FormData(courseForm);
+        const courseData = {
+            year: formData.get('year').toString(), // Mantener como texto para flexibilidad
+            division: formData.get('division'),
+            shift: formData.get('shift'),
+            academic_year: parseInt(formData.get('academicYear')),
+            cycle: formData.get('cycle') || 'basico',
+            specialization: formData.get('specialization') || null,
+            capacity: parseInt(formData.get('capacity')) || null,
+            description: formData.get('description') || null,
+            is_active: true
+        };
+        
+        try {
+            const url = editingCourseId ? `/courses/api/${editingCourseId}` : '/courses/api';
+            const method = editingCourseId ? 'PUT' : 'POST';
+            
+            const response = await fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(courseData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert('Curso guardado correctamente', 'success');
+                addCourseModal.hide();
+                loadCourses();
+            } else {
+                showAlert('Error al guardar curso: ' + result.error, 'danger');
+            }
+        } catch (error) {
+            showAlert('Error al guardar curso: ' + error.message, 'danger');
+        }
+    });
+    
+    async function loadCourses() {
+        try {
+            const response = await fetch('/courses/api', {
+                credentials: 'include'
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                courses = result.courses;
+                renderCourses();
+                updateStatistics();
+            } else {
+                showError('Error al cargar cursos: ' + result.error);
+            }
+        } catch (error) {
+            showError('Error al cargar cursos: ' + error.message);
+        }
+    }
+    
+    function renderCourses() {
+        if (courses.length === 0) {
+            coursesTableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="text-center py-4">
+                        <i class="bi bi-book fs-1 text-muted"></i>
+                        <p class="mt-2 text-muted">No hay cursos registrados</p>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCourseModal">
+                            <i class="bi bi-plus-circle me-2"></i>Agregar Primer Curso
+                        </button>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        coursesTableBody.innerHTML = courses.map(course => `
+            <tr>
+                <td>${course.year}</td>
+                <td>${course.division}</td>
+                <td>${course.shift}</td>
+                <td>${course.academic_year}</td>
+                <td>
+                    <span class="badge bg-primary">${course.student_count || 0}</span>
+                </td>
+                <td>${course.specialization || 'Sin especialización'}</td>
+                <td>
+                    <span class="badge bg-${course.is_active ? 'success' : 'secondary'}">
+                        ${course.is_active ? 'Activo' : 'Inactivo'}
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-primary" onclick="editCourse('${course.id}')" title="Editar">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="deleteCourse('${course.id}')" title="Eliminar">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+    }
+    
+    function updateStatistics() {
+        document.getElementById('totalCourses').textContent = courses.length;
+        document.getElementById('totalStudents').textContent = courses.reduce((sum, course) => sum + (course.student_count || 0), 0);
+        document.getElementById('totalSpecializations').textContent = [...new Set(courses.map(c => c.specialization).filter(Boolean))].length;
+        document.getElementById('activeCourses').textContent = courses.filter(c => c.is_active).length;
+    }
+    
+    function showError(message) {
+        coursesTableBody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4">
+                    <i class="bi bi-exclamation-triangle fs-1 text-danger"></i>
+                    <p class="mt-2 text-danger">${message}</p>
+                </td>
+            </tr>
+        `;
+    }
+    
+    function showAlert(message, type) {
+        // Remover alertas existentes
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.container-fluid');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+    
+    // Funciones globales
+    window.editCourse = function(courseId) {
+        const course = courses.find(c => c.id === courseId);
+        if (course) {
+            editingCourseId = courseId;
+            document.getElementById('modalTitle').textContent = 'Editar Curso';
+            
+            // Llenar el formulario
+            document.getElementById('year').value = course.year;
+            document.getElementById('division').value = course.division;
+            document.getElementById('shift').value = course.shift;
+            document.getElementById('academicYear').value = course.academic_year;
+            document.getElementById('specialization').value = course.specialization || '';
+            document.getElementById('capacity').value = course.capacity || '';
+            document.getElementById('description').value = course.description || '';
+            
+            addCourseModal.show();
+        }
+    };
+    
+    window.deleteCourse = async function(courseId) {
+        if (confirm('¿Estás seguro de que deseas eliminar este curso?')) {
+            try {
+                const response = await fetch(`/courses/api/${courseId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    showAlert('Curso eliminado correctamente', 'success');
+                    loadCourses();
+                } else {
+                    showAlert('Error al eliminar curso: ' + result.error, 'danger');
+                }
+            } catch (error) {
+                showAlert('Error al eliminar curso: ' + error.message, 'danger');
+            }
+        }
+    };
+});
+</script>
+
+<style>
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>

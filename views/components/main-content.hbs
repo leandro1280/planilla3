@@ -1,16 +1,15 @@
-<!-- Main Content -->
-<main class="{{#unless user}}auth-container{{/unless}}">
-    {{#if user}}
-    <div class="container-fluid mt-4">
-    {{/if}}
-        
-        <!-- Alertas -->
-        <div id="alertContainer"></div>
-        
-        <!-- Contenido de la página -->
-        {{{body}}}
-        
-    {{#if user}}
+<!-- Contenido principal de la página -->
+<main class="main-content">
+    {{#if title}}
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="h3 mb-4">{{title}}</h1>
+            </div>
+        </div>
     </div>
     {{/if}}
+    
+    <!-- El contenido específico de cada página se renderiza aquí -->
+    {{{body}}}
 </main>

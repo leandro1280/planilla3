@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{title}} - Sistema de Gestión de Notas</title>
+    <title>{{title}} - EduTrack Pro</title>
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,6 +15,8 @@
     <link href="/css/style.css?v=1.2" rel="stylesheet">
     <!-- Fix CSS -->
     <link href="/css/fix.css?v=1.0" rel="stylesheet">
+    <!-- Auth CSS -->
+    <link href="/css/auth.css?v=1.0" rel="stylesheet">
 </head>
 <body>
     {{#if user}}
@@ -23,7 +25,7 @@
         <div class="container-fluid">
             <a class="navbar-brand" href="/dashboard">
                 <i class="bi bi-mortarboard-fill me-2"></i>
-                Sistema de Notas
+                EduTrack Pro
             </a>
             
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -130,7 +132,7 @@
     {{#if user}}
     <footer class="bg-light text-center text-muted py-3 mt-5">
         <div class="container">
-            <p class="mb-0">&copy; {{currentYear}} Sistema de Gestión de Notas Escolares. Todos los derechos reservados.</p>
+            <p class="mb-0">&copy; {{currentYear}} EduTrack Pro - Sistema de Gestión Educativa. Todos los derechos reservados.</p>
         </div>
     </footer>
     {{/if}}

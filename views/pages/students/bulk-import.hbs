@@ -1,0 +1,449 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-clipboard-data me-3"></i>Importación Masiva
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Importa estudiantes copiando y pegando listas de nombres
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Instrucciones -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Instrucciones
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <h6>📋 CÓMO USAR (SÚPER FÁCIL):</h6>
+                        <div class="alert alert-success">
+                            <h6><i class="bi bi-lightbulb me-2"></i>SOLO HAZ ESTO:</h6>
+                            <ol class="mb-0">
+                                <li><strong>Copia</strong> tu lista de estudiantes desde Excel, Word, o donde sea</li>
+                                <li><strong>Pega</strong> aquí abajo en el cuadro grande</li>
+                                <li><strong>Haz clic</strong> en "Importar Estudiantes"</li>
+                                <li><strong>¡Listo!</strong> El sistema hace todo automáticamente</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Formulario de Importación -->
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-upload me-2"></i>Importar Estudiantes
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="bulkImportForm">
+                    <div class="mb-3">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Instrucciones simples:</strong> Solo pega tu lista de estudiantes con sus cursos. El sistema detectará automáticamente todo.
+                        </div>
+                    </div>
+                    
+                <div class="mb-3">
+                    <label for="courseSelect" class="form-label">Seleccionar Curso <span class="text-danger">*</span></label>
+                    <select class="form-select" id="courseSelect" name="courseId" required>
+                        <option value="">Seleccionar curso...</option>
+                        <!-- Los cursos se cargarán dinámicamente -->
+                    </select>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Los cursos se muestran como: Año División Turno (Grupo)
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="studentList" class="form-label">Lista de Estudiantes <span class="text-danger">*</span></label>
+                    <textarea class="form-control" id="studentList" name="studentList" rows="12" 
+                              placeholder="PEGA AQUÍ TU LISTA DE ESTUDIANTES...
+
+Ejemplo:
+González, Juan
+Pérez, María
+López, Carlos
+Martínez, Ana
+García, Pedro
+
+O simplemente:
+Juan González
+María Pérez
+Carlos López" required></textarea>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Puedes copiar y pegar desde Excel, Word o cualquier documento
+                    </div>
+                </div>
+                    
+                    <!-- Opciones ocultas - se manejan automáticamente -->
+                    <input type="hidden" id="skipDuplicates" name="skipDuplicates" value="on">
+                    <input type="hidden" id="autoDetectCourses" name="autoDetectCourses" value="on">
+                    <input type="hidden" id="separateByGroups" name="separateByGroups" value="on">
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="/students" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancelar
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Importar Estudiantes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Vista Previa -->
+    <div class="col-lg-4">
+        <div class="card shadow">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-eye me-2"></i>Vista Previa
+                </h5>
+            </div>
+            <div class="card-body">
+                <div id="previewContainer">
+                    <div class="text-center text-muted">
+                        <i class="bi bi-clipboard fs-1"></i>
+                        <p class="mt-2">Ingresa la lista de estudiantes para ver la vista previa</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Estadísticas -->
+        <div class="card shadow mt-3">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-bar-chart me-2"></i>Estadísticas
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6">
+                        <h4 class="text-primary mb-0" id="totalStudents">0</h4>
+                        <small class="text-muted">Total</small>
+                    </div>
+                    <div class="col-6">
+                        <h4 class="text-success mb-0" id="validStudents">0</h4>
+                        <small class="text-muted">Válidos</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const studentListTextarea = document.getElementById('studentList');
+    const previewContainer = document.getElementById('previewContainer');
+    const totalStudentsSpan = document.getElementById('totalStudents');
+    const validStudentsSpan = document.getElementById('validStudents');
+    const courseSelect = document.getElementById('courseSelect');
+    
+    // Cargar cursos disponibles
+    loadCourses();
+    
+    async function loadCourses() {
+        try {
+            const response = await fetch('/courses/api', {
+                credentials: 'include'
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.courses && data.courses.length > 0) {
+                    courseSelect.innerHTML = '<option value="">Seleccionar curso...</option>';
+                    data.courses.forEach(course => {
+                        const option = document.createElement('option');
+                        option.value = course.id;
+                        const groupText = course.group_name ? ` (${course.group_name})` : '';
+                        option.textContent = `${course.year}° ${course.division} - ${course.shift}${groupText}`;
+                        courseSelect.appendChild(option);
+                    });
+                } else {
+                    courseSelect.innerHTML = '<option value="">No hay cursos disponibles</option>';
+                }
+            }
+        } catch (error) {
+            console.error('Error cargando cursos:', error);
+            courseSelect.innerHTML = '<option value="">Error al cargar cursos</option>';
+        }
+    }
+    
+    // Vista previa en tiempo real
+    studentListTextarea.addEventListener('input', function() {
+        updatePreview();
+    });
+    
+    // Manejar envío del formulario
+    document.getElementById('bulkImportForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const courseId = formData.get('courseId');
+        const studentList = formData.get('studentList');
+        const skipDuplicates = formData.get('skipDuplicates') === 'on';
+        const autoDetectCourses = formData.get('autoDetectCourses') === 'on';
+        const separateByGroups = formData.get('separateByGroups') === 'on';
+        
+        if (!studentList.trim()) {
+            showAlert('Por favor ingresa la lista de estudiantes', 'warning');
+            return;
+        }
+        
+        if (!courseId) {
+            showAlert('Por favor selecciona un curso', 'warning');
+            return;
+        }
+        
+        // Procesar la lista de estudiantes
+        const students = parseStudentList(studentList, courseId);
+        
+        if (students.length === 0) {
+            showAlert('No se encontraron estudiantes válidos en la lista', 'warning');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/students/api/bulk-import', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    students: students,
+                    courseId: courseId,
+                    skipDuplicates: skipDuplicates
+                })
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert(`Se importaron ${result.imported} estudiantes correctamente`, 'success');
+                setTimeout(() => {
+                    window.location.href = '/students';
+                }, 2000);
+            } else {
+                showAlert('Error al importar estudiantes: ' + result.error, 'danger');
+            }
+        } catch (error) {
+            showAlert('Error al importar estudiantes: ' + error.message, 'danger');
+        }
+    });
+    
+    function updatePreview() {
+        const text = studentListTextarea.value.trim();
+        
+        if (!text) {
+            previewContainer.innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="bi bi-clipboard fs-1"></i>
+                    <p class="mt-2">Ingresa la lista de estudiantes para ver la vista previa</p>
+                </div>
+            `;
+            totalStudentsSpan.textContent = '0';
+            validStudentsSpan.textContent = '0';
+            return;
+        }
+        
+        const students = parseStudentList(text);
+        const validStudents = students.filter(s => s.isValid);
+        
+        totalStudentsSpan.textContent = students.length;
+        validStudentsSpan.textContent = validStudents.length;
+        
+        if (students.length === 0) {
+            previewContainer.innerHTML = `
+                <div class="text-center text-muted">
+                    <i class="bi bi-exclamation-triangle fs-1 text-warning"></i>
+                    <p class="mt-2">No se encontraron estudiantes en la lista</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let previewHtml = '<div class="table-responsive"><table class="table table-sm">';
+        previewHtml += '<thead><tr><th>#</th><th>Nombre</th><th>DNI</th><th>Estado</th></tr></thead><tbody>';
+        
+        students.forEach((student, index) => {
+            const statusClass = student.isValid ? 'text-success' : 'text-danger';
+            const statusIcon = student.isValid ? 'bi-check-circle' : 'bi-exclamation-triangle';
+            const statusText = student.isValid ? 'Válido' : student.error;
+            
+            previewHtml += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${student.firstName} ${student.lastName}</td>
+                    <td>${student.dni || '-'}</td>
+                    <td><i class="bi ${statusIcon} ${statusClass}"></i> ${statusText}</td>
+                </tr>
+            `;
+        });
+        
+        previewHtml += '</tbody></table></div>';
+        previewContainer.innerHTML = previewHtml;
+    }
+    
+    function parseStudentList(text, courseId) {
+        const lines = text.split('\n').filter(line => line.trim());
+        const students = [];
+        
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+            
+            try {
+                // Detectar diferentes formatos de estudiantes
+                let firstName = '';
+                let lastName = '';
+                let dni = '';
+                
+                // Formato: "DNI, Apellido, Nombre"
+                const dniFormat = trimmed.match(/^(\d+),\s*(.+),\s*(.+)$/);
+                if (dniFormat) {
+                    dni = dniFormat[1];
+                    lastName = dniFormat[2].trim();
+                    firstName = dniFormat[3].trim();
+                }
+                // Formato: "Apellido, Nombre"
+                else if (trimmed.includes(',')) {
+                    const parts = trimmed.split(',');
+                    if (parts.length >= 2) {
+                        lastName = parts[0].trim();
+                        firstName = parts.slice(1).join(',').trim();
+                    }
+                }
+                // Formato: "Nombre Apellido"
+                else {
+                    const parts = trimmed.split(/\s+/);
+                    if (parts.length >= 2) {
+                        firstName = parts[0];
+                        lastName = parts.slice(1).join(' ');
+                    } else {
+                        firstName = trimmed;
+                        lastName = '';
+                    }
+                }
+                
+                if (firstName || lastName) {
+                    students.push({
+                        firstName: firstName,
+                        lastName: lastName,
+                        fullName: `${firstName} ${lastName}`.trim(),
+                        dni: dni,
+                        courseId: courseId,
+                        isValid: true
+                    });
+                } else {
+                    students.push({
+                        firstName: '',
+                        lastName: '',
+                        fullName: trimmed,
+                        dni: '',
+                        detectedCourse: detectedCourse,
+                        isValid: false,
+                        error: 'Formato inválido'
+                    });
+                }
+            } catch (error) {
+                students.push({
+                    firstName: '',
+                    lastName: '',
+                    fullName: trimmed,
+                    dni: '',
+                    detectedCourse: currentCourse,
+                    isValid: false,
+                    error: 'Error al procesar'
+                });
+            }
+        });
+        
+        return students;
+    }
+    
+    async function createCoursesIfNeeded(students) {
+        try {
+            // Obtener cursos únicos de los estudiantes
+            const uniqueCourses = [...new Set(students
+                .filter(s => s.detectedCourse)
+                .map(s => `${s.detectedCourse.year}|${s.detectedCourse.division}|${s.detectedCourse.shift}`)
+            )];
+            
+            if (uniqueCourses.length === 0) return;
+            
+            // Crear cursos que no existen
+            for (const courseKey of uniqueCourses) {
+                const [year, division, shift] = courseKey.split('|');
+                
+                const response = await fetch('/courses/api/auto-create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        year: year,
+                        division: division,
+                        shift: shift,
+                        academic_year: new Date().getFullYear()
+                    })
+                });
+                
+                if (!response.ok) {
+                    console.warn(`No se pudo crear curso: ${year} ${division} ${shift}`);
+                }
+            }
+        } catch (error) {
+            console.error('Error creando cursos:', error);
+        }
+    }
+    
+    function showAlert(message, type) {
+        // Remover alertas existentes
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.container-fluid');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-triangle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+});
+</script>
+
+<style>
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>

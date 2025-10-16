@@ -1,0 +1,225 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-building me-3"></i>Seleccionar Escuela
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Elige la escuela con la que deseas trabajar en EduTrack Pro
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Escuelas -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-ul me-2"></i>Escuelas Disponibles
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                {{#if error}}
+                <div class="alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle me-2"></i>{{error}}
+                </div>
+                {{/if}}
+
+                {{#if schools.length}}
+                <div class="row g-4">
+                    {{#each schools}}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 border-0 shadow-sm school-card" data-school-id="{{id}}">
+                            <div class="card-body d-flex flex-column">
+                                <div class="text-center mb-3">
+                                    <div class="school-icon mb-3">
+                                        <i class="bi bi-building text-primary" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title fw-bold">{{name}}</h5>
+                                    <p class="text-muted mb-2">{{city}}, {{province}}</p>
+                                    <span class="badge bg-{{#if (eq school_type 'primaria')}}success{{else if (eq school_type 'secundaria_comun')}}primary{{else if (eq school_type 'secundaria_tecnica')}}info{{else}}secondary{{/if}} text-capitalize">
+                                        {{school_type}}
+                                    </span>
+                                </div>
+                                
+                                <div class="mt-auto">
+                                    <div class="row text-center mb-3">
+                                        <div class="col-4">
+                                            <div class="fw-bold text-primary">{{courses_count}}</div>
+                                            <small class="text-muted">Cursos</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="fw-bold text-success">{{students_count}}</div>
+                                            <small class="text-muted">Estudiantes</small>
+                                        </div>
+                                        <div class="col-4">
+                                            <div class="fw-bold text-info">{{teachers_count}}</div>
+                                            <small class="text-muted">Profesores</small>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="btn btn-primary w-100 select-school-btn" data-school-id="{{id}}">
+                                        <i class="bi bi-check-circle me-2"></i>Seleccionar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {{/each}}
+                </div>
+                {{else}}
+                <div class="text-center py-5">
+                    <i class="bi bi-building text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="text-muted mt-3">No hay escuelas disponibles</h4>
+                    <p class="text-muted">Contacta al administrador para obtener acceso a una escuela.</p>
+                    <a href="/schools/create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>Crear Nueva Escuela
+                    </a>
+                </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación -->
+<div class="modal fade" id="confirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmar Selección</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas seleccionar esta escuela?</p>
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Podrás cambiar de escuela en cualquier momento desde el menú de usuario.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmSelectBtn">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let selectedSchoolId = null;
+    const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
+    
+    // Manejar clic en botón de seleccionar
+    document.querySelectorAll('.select-school-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            selectedSchoolId = this.dataset.schoolId;
+            confirmModal.show();
+        });
+    });
+    
+    // Manejar clic en tarjeta de escuela
+    document.querySelectorAll('.school-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            if (!e.target.closest('.select-school-btn')) {
+                const schoolId = this.dataset.schoolId;
+                selectedSchoolId = schoolId;
+                confirmModal.show();
+            }
+        });
+    });
+    
+    // Confirmar selección
+    document.getElementById('confirmSelectBtn').addEventListener('click', async function() {
+        if (!selectedSchoolId) return;
+        
+        const btn = this;
+        const originalText = btn.innerHTML;
+        
+        // Mostrar loading
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Seleccionando...';
+        btn.disabled = true;
+        
+        try {
+            const response = await fetch('/schools/select', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ schoolId: selectedSchoolId }),
+                credentials: 'include'
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok) {
+                // Mostrar mensaje de éxito
+                showAlert('Escuela seleccionada correctamente. Redirigiendo...', 'success');
+                
+                // Redirigir al dashboard
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 1500);
+            } else {
+                showAlert(data.error || 'Error al seleccionar la escuela', 'danger');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Error de conexión. Intenta de nuevo.', 'danger');
+        } finally {
+            // Restaurar botón
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+            confirmModal.hide();
+        }
+    });
+    
+    function showAlert(message, type) {
+        // Remover alertas existentes
+        const existingAlerts = document.querySelectorAll('.alert');
+        existingAlerts.forEach(alert => alert.remove());
+        
+        const alertContainer = document.querySelector('.card-body');
+        const alert = document.createElement('div');
+        alert.className = `alert alert-${type} alert-dismissible fade show`;
+        alert.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        alertContainer.insertBefore(alert, alertContainer.firstChild);
+    }
+});
+</script>
+
+<style>
+.school-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.school-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.school-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+}
+
+.school-icon i {
+    color: white !important;
+    font-size: 2rem !important;
+}
+</style>

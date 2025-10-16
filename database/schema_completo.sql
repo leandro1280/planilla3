@@ -18,7 +18,7 @@ CREATE TABLE schools (
     province VARCHAR(100) DEFAULT 'Buenos Aires' NOT NULL,
     phone VARCHAR(50),
     email VARCHAR(255) UNIQUE,
-    school_type VARCHAR(50) NOT NULL CHECK (school_type IN ('secundaria_comun', 'tecnica', 'agrotecnica', 'artistica', 'adultos')),
+    school_type VARCHAR(50) NOT NULL CHECK (school_type IN ('primaria', 'secundaria_comun', 'secundaria_tecnica', 'agrotecnica', 'artistica', 'adultos')),
     is_active BOOLEAN DEFAULT true NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -95,14 +95,15 @@ CREATE TABLE courses (
     academic_year INTEGER NOT NULL CHECK (academic_year >= 2020),
     year INTEGER NOT NULL CHECK (year BETWEEN 1 AND 7),
     division VARCHAR(10) NOT NULL,
-    cycle VARCHAR(20) NOT NULL CHECK (cycle IN ('basico', 'superior')),
+    group_name VARCHAR(10), -- Para grupos de talleres (A, B, 1, 2, Alpha, Beta, etc.)
+    cycle VARCHAR(20) NOT NULL CHECK (cycle IN ('primario', 'basico', 'superior')),
     specialization_id UUID REFERENCES specializations(id) ON DELETE SET NULL,
     shift VARCHAR(20) DEFAULT 'mañana' CHECK (shift IN ('mañana', 'tarde', 'vespertino', 'noche')),
     max_students INTEGER DEFAULT 30 CHECK (max_students > 0),
     is_active BOOLEAN DEFAULT true NOT NULL,
     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    UNIQUE(school_id, academic_year, year, division, shift)
+    UNIQUE(school_id, academic_year, year, division, group_name, shift)
 );
 
 -- ========================================
@@ -357,6 +358,9 @@ COMMENT ON TABLE grades IS 'Calificaciones con sistema TEA/TEP/TED para Buenos A
 COMMENT ON COLUMN grades.tea_tep_ted IS 'TEA: Trabajo Excelente (7-10), TEP: En Proceso (4-6), TED: En Desarrollo (1-3)';
 COMMENT ON COLUMN grades.quarter IS '1: Primer cuatrimestre, 2: Segundo cuatrimestre';
 COMMENT ON COLUMN grades.grade_type IS 'pre_informe: Evaluación parcial, informe: Evaluación final del cuatrimestre';
+
+
+
 
 
 

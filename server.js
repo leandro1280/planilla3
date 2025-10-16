@@ -8,9 +8,14 @@ const session = require('express-session');
 require('dotenv').config();
 
 // Importar rutas
-const authRoutes = require('./routes/auth');
+const authViewsRoutes = require('./routes/auth-views');
+const authApiRoutes = require('./routes/auth');
 const dashboardRoutes = require('./routes/dashboard');
-// const schoolRoutes = require('./routes/schools');
+const schoolRoutes = require('./routes/schools');
+const fileRoutes = require('./routes/files');
+const studentRoutes = require('./routes/students');
+const courseRoutes = require('./routes/courses');
+const apiRoutes = require('./routes/api');
 // const studentRoutes = require('./routes/students');
 // const gradeRoutes = require('./routes/grades');
 // const reportRoutes = require('./routes/reports');
@@ -30,6 +35,7 @@ app.use(helmet({
       defaultSrc: ["'self'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
+      scriptSrcAttr: ["'unsafe-inline'"],
       imgSrc: ["'self'", "data:", "https:"],
       connectSrc: ["'self'", "https://cdn.jsdelivr.net", "https://*.supabase.co"],
       fontSrc: ["'self'", "https://cdn.jsdelivr.net"],
@@ -148,12 +154,21 @@ app.get('/', (req, res) => {
   });
 });
 
-// Rutas de autenticación
-app.use('/auth', authRoutes);
+// Rutas de autenticación (vistas)
+app.use('/auth', authViewsRoutes);
+
+// Rutas de API de autenticación
+app.use('/api/auth', authApiRoutes);
+
+// Rutas de API generales
+app.use('/api', apiRoutes);
 
 // Rutas protegidas
 app.use('/dashboard', authMiddleware, dashboardRoutes);
-// app.use('/schools', authMiddleware, schoolRoutes);
+app.use('/schools', authMiddleware, schoolRoutes);
+app.use('/files', authMiddleware, fileRoutes);
+app.use('/students', authMiddleware, studentRoutes);
+app.use('/courses', authMiddleware, courseRoutes);
 // app.use('/students', authMiddleware, studentRoutes);
 // app.use('/grades', authMiddleware, gradeRoutes);
 // app.use('/reports', authMiddleware, reportRoutes);

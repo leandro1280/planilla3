@@ -1,0 +1,249 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-book me-3"></i>Configurar Materias
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Configura las materias que se dictarán en {{school.name}}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración de Materias -->
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-gear me-2"></i>Materias de {{school.name}}
+                </h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Configuración de materias:</strong> Aquí puedes agregar, editar y eliminar las materias que se dictarán en tu escuela.
+                </div>
+
+                <!-- Botones de acción -->
+                <div class="d-flex gap-3 mb-4">
+                    <button class="btn btn-success" id="addSubjectBtn">
+                        <i class="bi bi-plus-circle me-2"></i>Agregar Materia
+                    </button>
+                    <button class="btn btn-outline-primary" id="loadDefaultsBtn">
+                        <i class="bi bi-download me-2"></i>Cargar Materias Predeterminadas
+                    </button>
+                    <button class="btn btn-outline-secondary" id="saveSubjectsBtn">
+                        <i class="bi bi-save me-2"></i>Guardar Configuración
+                    </button>
+                </div>
+
+                <!-- Lista de materias -->
+                <div id="subjectsList">
+                    <!-- Las materias se cargarán dinámicamente -->
+                </div>
+
+                <!-- Modal para agregar/editar materia -->
+                <div class="modal fade" id="subjectModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="subjectModalTitle">Agregar Materia</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="subjectForm">
+                                    <div class="mb-3">
+                                        <label for="subjectName" class="form-label">Nombre de la Materia *</label>
+                                        <input type="text" class="form-control" id="subjectName" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="subjectCode" class="form-label">Código *</label>
+                                        <input type="text" class="form-control" id="subjectCode" required>
+                                        <div class="form-text">Ej: MTM, PLG, CNT</div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="subjectType" class="form-label">Tipo *</label>
+                                        <select class="form-select" id="subjectType" required>
+                                            <option value="curricular">Curricular</option>
+                                            <option value="taller">Taller</option>
+                                            <option value="practica">Práctica</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="subjectHours" class="form-label">Horas Semanales *</label>
+                                        <input type="number" class="form-control" id="subjectHours" min="1" max="20" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="subjectYears" class="form-label">Años *</label>
+                                        <div class="row">
+                                            {{#each (range 1 school.max_years)}}
+                                            <div class="col-md-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="year{{this}}" value="{{this}}">
+                                                    <label class="form-check-label" for="year{{this}}">
+                                                        {{this}}°
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            {{/each}}
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="button" class="btn btn-primary" id="saveSubjectBtn">Guardar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const subjectsList = document.getElementById('subjectsList');
+    const addSubjectBtn = document.getElementById('addSubjectBtn');
+    const loadDefaultsBtn = document.getElementById('loadDefaultsBtn');
+    const saveSubjectsBtn = document.getElementById('saveSubjectsBtn');
+    const subjectModal = new bootstrap.Modal(document.getElementById('subjectModal'));
+    const subjectForm = document.getElementById('subjectForm');
+    const saveSubjectBtn = document.getElementById('saveSubjectBtn');
+    
+    let subjects = [];
+    let editingIndex = -1;
+
+    // Cargar materias existentes
+    loadSubjects();
+
+    // Event listeners
+    addSubjectBtn.addEventListener('click', () => openSubjectModal());
+    loadDefaultsBtn.addEventListener('click', loadDefaultSubjects);
+    saveSubjectsBtn.addEventListener('click', saveSubjects);
+    saveSubjectBtn.addEventListener('click', saveSubject);
+
+    function loadSubjects() {
+        // Aquí cargarías las materias desde la API
+        subjectsList.innerHTML = '<p class="text-muted">No hay materias configuradas aún.</p>';
+    }
+
+    function openSubjectModal(editIndex = -1) {
+        editingIndex = editIndex;
+        const modalTitle = document.getElementById('subjectModalTitle');
+        
+        if (editIndex >= 0) {
+            modalTitle.textContent = 'Editar Materia';
+            const subject = subjects[editIndex];
+            document.getElementById('subjectName').value = subject.name;
+            document.getElementById('subjectCode').value = subject.code;
+            document.getElementById('subjectType').value = subject.type;
+            document.getElementById('subjectHours').value = subject.hours;
+            
+            // Marcar años seleccionados
+            subject.years.forEach(year => {
+                const checkbox = document.getElementById(`year${year}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        } else {
+            modalTitle.textContent = 'Agregar Materia';
+            subjectForm.reset();
+        }
+        
+        subjectModal.show();
+    }
+
+    function saveSubject() {
+        const name = document.getElementById('subjectName').value;
+        const code = document.getElementById('subjectCode').value;
+        const type = document.getElementById('subjectType').value;
+        const hours = parseInt(document.getElementById('subjectHours').value);
+        const years = Array.from(document.querySelectorAll('input[type="checkbox"]:checked'))
+                          .map(cb => parseInt(cb.value));
+
+        if (!name || !code || !hours || years.length === 0) {
+            alert('Por favor completa todos los campos requeridos');
+            return;
+        }
+
+        const subject = { name, code, type, hours, years };
+
+        if (editingIndex >= 0) {
+            subjects[editingIndex] = subject;
+        } else {
+            subjects.push(subject);
+        }
+
+        renderSubjects();
+        subjectModal.hide();
+    }
+
+    function renderSubjects() {
+        if (subjects.length === 0) {
+            subjectsList.innerHTML = '<p class="text-muted">No hay materias configuradas aún.</p>';
+            return;
+        }
+
+        subjectsList.innerHTML = subjects.map((subject, index) => `
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-3">
+                            <strong>${subject.name}</strong>
+                            <br><code>${subject.code}</code>
+                        </div>
+                        <div class="col-md-2">
+                            <span class="badge bg-${subject.type === 'curricular' ? 'primary' : subject.type === 'taller' ? 'success' : 'info'}">
+                                ${subject.type}
+                            </span>
+                        </div>
+                        <div class="col-md-2">
+                            ${subject.hours}h/sem
+                        </div>
+                        <div class="col-md-3">
+                            ${subject.years.map(y => y + '°').join(', ')}
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="openSubjectModal(${index})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteSubject(${index})">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function deleteSubject(index) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta materia?')) {
+            subjects.splice(index, 1);
+            renderSubjects();
+        }
+    }
+
+    function loadDefaultSubjects() {
+        if (confirm('¿Cargar materias predeterminadas para este tipo de escuela? Esto reemplazará las materias actuales.')) {
+            // Aquí cargarías las materias predeterminadas desde la API
+            alert('Funcionalidad en desarrollo');
+        }
+    }
+
+    function saveSubjects() {
+        // Aquí guardarías las materias en la API
+        alert('Materias guardadas correctamente');
+    }
+
+    // Hacer funciones globales para los botones inline
+    window.openSubjectModal = openSubjectModal;
+    window.deleteSubject = deleteSubject;
+});
+</script>

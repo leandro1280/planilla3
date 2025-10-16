@@ -1,0 +1,483 @@
+<!-- Hero Section -->
+<div class="hero-section mb-5">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            <div class="hero-content">
+                <h1 class="display-4 fw-bold text-gradient mb-3">
+                    <i class="bi bi-book me-3"></i>Gestión de Cursos
+                </h1>
+                <p class="lead text-muted mb-4">
+                    Crea y gestiona los cursos de tu escuela de forma flexible
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Información de la escuela -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-info">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>Información de la Escuela
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <strong>Escuela:</strong> {{school.name}}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Tipo:</strong> 
+                        <span class="badge bg-primary">
+                            {{#if (eq school.school_type 'primaria')}}Primaria{{/if}}
+                            {{#if (eq school.school_type 'secundaria_comun')}}Secundaria{{/if}}
+                            {{#if (eq school.school_type 'secundaria_tecnica')}}Técnica{{/if}}
+                        </span>
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Años:</strong> 
+                        {{#if (eq school.school_type 'primaria')}}1ro a 6to Grado{{/if}}
+                        {{#if (eq school.school_type 'secundaria_comun')}}1ro a 6to Año{{/if}}
+                        {{#if (eq school.school_type 'secundaria_tecnica')}}1ro a 7mo Año{{/if}}
+                    </div>
+                    <div class="col-md-3">
+                        <strong>Turnos:</strong> Mañana, Tarde, Vespertino
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Crear nuevo curso -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Crear Nuevo Curso
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="createCourseForm">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="year" class="form-label">Año <span class="text-danger">*</span></label>
+                                <select class="form-select" id="year" name="year" required>
+                                    <option value="">Seleccionar...</option>
+                                    <!-- Se llenará dinámicamente según el tipo de escuela -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="division" class="form-label">División <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" id="division" name="division" 
+                                       placeholder="Ej: A, B, 1ra, 2da" required>
+                                <div class="form-text">Ej: A, B, C, 1ra, 2da, 3ra</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="shift" class="form-label">Turno <span class="text-danger">*</span></label>
+                                <select class="form-select" id="shift" name="shift" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="mañana">Mañana</option>
+                                    <option value="tarde">Tarde</option>
+                                    <option value="vespertino">Vespertino</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="group" class="form-label">Grupo (Opcional)</label>
+                                <input type="text" class="form-control" id="group" name="group" 
+                                       placeholder="Ej: A, 1, Alpha">
+                                <div class="form-text">Para talleres en escuelas técnicas</div>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label for="maxStudents" class="form-label">Máx. Estudiantes</label>
+                                <input type="number" class="form-control" id="maxStudents" name="maxStudents" 
+                                       value="30" min="1" max="50">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="mb-3">
+                                <label class="form-label">&nbsp;</label>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-plus-circle me-2"></i>Crear Curso
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de cursos existentes -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-list-ul me-2"></i>Cursos Existentes
+                </h5>
+                <button class="btn btn-outline-primary btn-sm" onclick="loadCourses()">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Actualizar
+                </button>
+            </div>
+            <div class="card-body">
+                <div id="coursesList">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <p class="mt-2">Cargando cursos...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar curso -->
+<div class="modal fade" id="editCourseModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Curso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editCourseForm">
+                    <input type="hidden" id="editCourseId" name="id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editYear" class="form-label">Año</label>
+                                <select class="form-select" id="editYear" name="year" required>
+                                    <!-- Se llenará dinámicamente -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editDivision" class="form-label">División</label>
+                                <input type="text" class="form-control" id="editDivision" name="division" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editShift" class="form-label">Turno</label>
+                                <select class="form-select" id="editShift" name="shift" required>
+                                    <option value="mañana">Mañana</option>
+                                    <option value="tarde">Tarde</option>
+                                    <option value="vespertino">Vespertino</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editGroup" class="form-label">Grupo</label>
+                                <input type="text" class="form-control" id="editGroup" name="group">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editMaxStudents" class="form-label">Máx. Estudiantes</label>
+                                <input type="number" class="form-control" id="editMaxStudents" name="maxStudents" min="1" max="50">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editIsActive" class="form-label">Estado</label>
+                                <select class="form-select" id="editIsActive" name="isActive">
+                                    <option value="true">Activo</option>
+                                    <option value="false">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="updateCourse()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const schoolType = '{{school.school_type}}';
+    const yearSelect = document.getElementById('year');
+    const editYearSelect = document.getElementById('editYear');
+    
+    // Llenar selectores de años según el tipo de escuela
+    function populateYearSelects() {
+        let years = [];
+        let yearLabel = '';
+        
+        if (schoolType === 'primaria') {
+            years = [1, 2, 3, 4, 5, 6];
+            yearLabel = '° Grado';
+        } else if (schoolType === 'secundaria_comun') {
+            years = [1, 2, 3, 4, 5, 6];
+            yearLabel = '° Año';
+        } else if (schoolType === 'secundaria_tecnica') {
+            years = [1, 2, 3, 4, 5, 6, 7];
+            yearLabel = '° Año';
+        }
+        
+        // Limpiar opciones existentes
+        yearSelect.innerHTML = '<option value="">Seleccionar...</option>';
+        editYearSelect.innerHTML = '<option value="">Seleccionar...</option>';
+        
+        // Agregar opciones
+        years.forEach(year => {
+            const option1 = document.createElement('option');
+            option1.value = year;
+            option1.textContent = `${year}${yearLabel}`;
+            yearSelect.appendChild(option1);
+            
+            const option2 = document.createElement('option');
+            option2.value = year;
+            option2.textContent = `${year}${yearLabel}`;
+            editYearSelect.appendChild(option2);
+        });
+    }
+    
+    populateYearSelects();
+    loadCourses();
+    
+    // Crear curso
+    document.getElementById('createCourseForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const courseData = {
+            year: formData.get('year'),
+            division: formData.get('division'),
+            shift: formData.get('shift'),
+            group: formData.get('group') || null,
+            maxStudents: parseInt(formData.get('maxStudents'))
+        };
+        
+        try {
+            const response = await fetch('/courses/api', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(courseData)
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showAlert('Curso creado correctamente', 'success');
+                this.reset();
+                loadCourses();
+            } else {
+                showAlert('Error al crear curso: ' + result.error, 'danger');
+            }
+        } catch (error) {
+            showAlert('Error al crear curso: ' + error.message, 'danger');
+        }
+    });
+});
+
+async function loadCourses() {
+    try {
+        const response = await fetch('/courses/api', {
+            credentials: 'include'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            displayCourses(result.courses);
+        } else {
+            document.getElementById('coursesList').innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Error al cargar cursos: ${result.error}
+                </div>
+            `;
+        }
+    } catch (error) {
+        document.getElementById('coursesList').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle me-2"></i>Error al cargar cursos: ${error.message}
+            </div>
+        `;
+    }
+}
+
+function displayCourses(courses) {
+    const container = document.getElementById('coursesList');
+    
+    if (courses.length === 0) {
+        container.innerHTML = `
+            <div class="text-center text-muted">
+                <i class="bi bi-book fs-1"></i>
+                <p class="mt-2">No hay cursos creados</p>
+                <p>Crea tu primer curso usando el formulario de arriba</p>
+            </div>
+        `;
+        return;
+    }
+    
+    let html = '<div class="table-responsive"><table class="table table-hover">';
+    html += '<thead><tr><th>Año</th><th>División</th><th>Turno</th><th>Grupo</th><th>Estudiantes</th><th>Estado</th><th>Acciones</th></tr></thead><tbody>';
+    
+    courses.forEach(course => {
+        const groupText = course.group_name ? course.group_name : '-';
+        const statusBadge = course.is_active ? 
+            '<span class="badge bg-success">Activo</span>' : 
+            '<span class="badge bg-secondary">Inactivo</span>';
+        
+        html += `
+            <tr>
+                <td>${course.year}°</td>
+                <td>${course.division}</td>
+                <td>${course.shift.charAt(0).toUpperCase() + course.shift.slice(1)}</td>
+                <td>${groupText}</td>
+                <td>${course.student_count || 0}/${course.max_students}</td>
+                <td>${statusBadge}</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editCourse('${course.id}')">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="deleteCourse('${course.id}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+    });
+    
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+}
+
+async function editCourse(courseId) {
+    try {
+        const response = await fetch(`/courses/api/${courseId}`, {
+            credentials: 'include'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            const course = result.course;
+            document.getElementById('editCourseId').value = course.id;
+            document.getElementById('editYear').value = course.year;
+            document.getElementById('editDivision').value = course.division;
+            document.getElementById('editShift').value = course.shift;
+            document.getElementById('editGroup').value = course.group_name || '';
+            document.getElementById('editMaxStudents').value = course.max_students;
+            document.getElementById('editIsActive').value = course.is_active;
+            
+            const modal = new bootstrap.Modal(document.getElementById('editCourseModal'));
+            modal.show();
+        } else {
+            showAlert('Error al cargar curso: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error al cargar curso: ' + error.message, 'danger');
+    }
+}
+
+async function updateCourse() {
+    const formData = new FormData(document.getElementById('editCourseForm'));
+    const courseId = formData.get('id');
+    
+    const courseData = {
+        year: formData.get('year'),
+        division: formData.get('division'),
+        shift: formData.get('shift'),
+        group: formData.get('group') || null,
+        maxStudents: parseInt(formData.get('maxStudents')),
+        isActive: formData.get('isActive') === 'true'
+    };
+    
+    try {
+        const response = await fetch(`/courses/api/${courseId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify(courseData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Curso actualizado correctamente', 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editCourseModal')).hide();
+            loadCourses();
+        } else {
+            showAlert('Error al actualizar curso: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error al actualizar curso: ' + error.message, 'danger');
+    }
+}
+
+async function deleteCourse(courseId) {
+    if (!confirm('¿Estás seguro de que quieres eliminar este curso?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/courses/api/${courseId}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        });
+        
+        const result = await response.json();
+        
+        if (result.success) {
+            showAlert('Curso eliminado correctamente', 'success');
+            loadCourses();
+        } else {
+            showAlert('Error al eliminar curso: ' + result.error, 'danger');
+        }
+    } catch (error) {
+        showAlert('Error al eliminar curso: ' + error.message, 'danger');
+    }
+}
+
+function showAlert(message, type) {
+    const existingAlerts = document.querySelectorAll('.alert');
+    existingAlerts.forEach(alert => alert.remove());
+    
+    const alertContainer = document.querySelector('.container-fluid');
+    const alert = document.createElement('div');
+    alert.className = `alert alert-${type} alert-dismissible fade show`;
+    alert.innerHTML = `
+        <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-triangle'} me-2"></i>${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    alertContainer.insertBefore(alert, alertContainer.firstChild);
+}
+</script>
+
+<style>
+.text-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+</style>
